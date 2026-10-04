@@ -1,997 +1,1072 @@
+"use strict";
+
 /* =========================================================
-   GS PLATFORM — AUTHENTICATION & APP LOGIC
+   GS PLATFORM — MAIN SCRIPT
+   Version: Authentication Interface
    ========================================================= */
 
 
 /* =========================================================
-   1. SUPABASE CONFIGURATION
-   =========================================================
-
-   Replace ONLY these two values with your Supabase project
-   URL and your public/publishable (anon) key.
-
-   NEVER put your Supabase service_role key here.
+   1. GS PLATFORM AUTH INTERFACE
+   The login window is created by JavaScript itself.
+   This means it does not depend on special HTML IDs.
    ========================================================= */
 
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY";
+(function () {
+
+    let authMode = "login";
 
 
-/* Create Supabase client */
+    /* -----------------------------------------------------
+       FIND THE LANDING-PAGE BUTTONS
+       We find them by their visible text instead of relying
+       on IDs that may be different in the HTML.
+       ----------------------------------------------------- */
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+    function findButtonByText(text) {
 
+        const elements = document.querySelectorAll(
+            "button, a, [role='button']"
+        );
 
-/* =========================================================
-   2. ELEMENTS
-   ========================================================= */
+        const wanted = text
+            .trim()
+            .toLowerCase();
 
-const authOverlay = document.getElementById("authOverlay");
+        for (const element of elements) {
 
-const getStartedButton =
-  document.getElementById("getStartedButton");
+            const elementText =
+                element.textContent
+                    .trim()
+                    .toLowerCase();
 
-const heroLoginButton =
-  document.getElementById("heroLoginButton");
+            if (elementText === wanted) {
+                return element;
+            }
+        }
 
-const topLoginButton =
-  document.getElementById("topLoginButton");
-
-const closeAuthButton =
-  document.getElementById("closeAuthButton");
-
-const googleButton =
-  document.getElementById("googleButton");
-
-const emailAuthForm =
-  document.getElementById("emailAuthForm");
-
-const emailSubmitButton =
-  document.getElementById("emailSubmitButton");
-
-const authMessage =
-  document.getElementById("authMessage");
-
-const authSwitchButton =
-  document.getElementById("authSwitchButton");
-
-const authSwitchText =
-  document.getElementById("authSwitchText");
-
-const authTitle =
-  document.getElementById("authTitle");
-
-const authSubtitle =
-  document.getElementById("authSubtitle");
-
-const forgotPasswordButton =
-  document.getElementById("forgotPasswordButton");
-
-const togglePassword =
-  document.getElementById("togglePassword");
-
-const passwordInput =
-  document.getElementById("password");
-
-const emailInput =
-  document.getElementById("email");
-
-const rotatingWord =
-  document.getElementById("rotatingWord");
-
-const rotatingMessage =
-  document.getElementById("rotatingMessage");
-
-const currentYear =
-  document.getElementById("currentYear");
-
-
-/* =========================================================
-   3. APPLICATION STATE
-   ========================================================= */
-
-let authMode = "login";
-
-
-/* =========================================================
-   4. CURRENT YEAR
-   ========================================================= */
-
-if (currentYear) {
-  currentYear.textContent = new Date().getFullYear();
-}
-
-
-/* =========================================================
-   5. OPEN AUTHENTICATION WINDOW
-   ========================================================= */
-
-function openAuth(mode = "login") {
-
-  authMode = mode;
-
-  updateAuthInterface();
-
-  authOverlay.classList.add("active");
-
-  authOverlay.setAttribute(
-    "aria-hidden",
-    "false"
-  );
-
-  document.body.classList.add("auth-open");
-
-  setTimeout(() => {
-
-    if (emailInput) {
-      emailInput.focus();
+        return null;
     }
 
-  }, 250);
-}
+
+    /* -----------------------------------------------------
+       CREATE AUTH WINDOW
+       ----------------------------------------------------- */
+
+    function createAuthWindow() {
+
+        /* Don't create it twice */
+        if (document.getElementById("gsAuthOverlay")) {
+            return;
+        }
 
 
-/* =========================================================
-   6. CLOSE AUTHENTICATION WINDOW
-   ========================================================= */
+        const overlay =
+            document.createElement("div");
 
-function closeAuth() {
-
-  authOverlay.classList.remove("active");
-
-  authOverlay.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-  document.body.classList.remove("auth-open");
-
-  clearAuthMessage();
-}
+        overlay.id =
+            "gsAuthOverlay";
 
 
-/* =========================================================
-   7. UPDATE LOGIN / SIGNUP INTERFACE
-   ========================================================= */
+        overlay.innerHTML = `
 
-function updateAuthInterface() {
+            <div id="gsAuthCard">
 
-  if (authMode === "signup") {
-
-    authTitle.textContent =
-      "Create your GS account";
-
-    authSubtitle.textContent =
-      "Join GS Platform and start building your future.";
-
-    emailSubmitButton.textContent =
-      "Create account";
-
-    authSwitchText.textContent =
-      "Already have an account?";
-
-    authSwitchButton.textContent =
-      "Log in";
-
-  } else {
-
-    authTitle.textContent =
-      "Welcome to GS";
-
-    authSubtitle.textContent =
-      "Sign in to continue to GS Platform.";
-
-    emailSubmitButton.textContent =
-      "Continue";
-
-    authSwitchText.textContent =
-      "Don't have an account?";
-
-    authSwitchButton.textContent =
-      "Create account";
-  }
-}
+                <button
+                    id="gsAuthClose"
+                    type="button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
 
 
-/* =========================================================
-   8. AUTH MESSAGE
-   ========================================================= */
-
-function showAuthMessage(message, type = "info") {
-
-  authMessage.textContent = message;
-
-  authMessage.className =
-    "auth-message " + type;
-}
+                <div class="gs-auth-logo">
+                    GS
+                </div>
 
 
-function clearAuthMessage() {
-
-  authMessage.textContent = "";
-
-  authMessage.className =
-    "auth-message";
-}
+                <div class="gs-auth-brand">
+                    GS PLATFORM
+                </div>
 
 
-/* =========================================================
-   9. GET STARTED
-   ========================================================= */
+                <h2 id="gsAuthTitle">
+                    Welcome to GS
+                </h2>
 
-if (getStartedButton) {
 
-  getStartedButton.addEventListener(
-    "click",
-    () => {
+                <p id="gsAuthSubtitle">
+                    Sign in to continue to GS Platform.
+                </p>
 
-      openAuth("signup");
+
+                <button
+                    id="gsGoogleButton"
+                    class="gs-google-button"
+                    type="button"
+                >
+                    <span class="gs-google-icon">
+                        G
+                    </span>
+
+                    Continue with Google
+                </button>
+
+
+                <div class="gs-divider">
+                    <span></span>
+                    <b>OR</b>
+                    <span></span>
+                </div>
+
+
+                <form id="gsEmailForm">
+
+                    <label for="gsEmail">
+                        Email address
+                    </label>
+
+                    <input
+                        id="gsEmail"
+                        type="email"
+                        placeholder="Enter your email"
+                        autocomplete="email"
+                        required
+                    >
+
+
+                    <label for="gsPassword">
+                        Password
+                    </label>
+
+                    <div class="gs-password-wrap">
+
+                        <input
+                            id="gsPassword"
+                            type="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            id="gsPasswordToggle"
+                            type="button"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+
+                    <button
+                        id="gsEmailSubmit"
+                        class="gs-submit"
+                        type="submit"
+                    >
+                        Continue
+                    </button>
+
+                </form>
+
+
+                <button
+                    id="gsForgotPassword"
+                    class="gs-forgot"
+                    type="button"
+                >
+                    Forgot password?
+                </button>
+
+
+                <p
+                    id="gsAuthMessage"
+                    class="gs-auth-message"
+                ></p>
+
+
+                <div class="gs-switch">
+
+                    <span id="gsSwitchText">
+                        Don't have an account?
+                    </span>
+
+                    <button
+                        id="gsSwitchButton"
+                        type="button"
+                    >
+                        Create account
+                    </button>
+
+                </div>
+
+            </div>
+        `;
+
+
+        document.body.appendChild(
+            overlay
+        );
+
+
+        addAuthStyles();
+
+        connectAuthControls();
+    }
+
+
+    /* =====================================================
+       2. AUTH WINDOW STYLES
+       These styles are included here deliberately so the
+       authentication window works even if the existing CSS
+       doesn't contain its classes.
+       ===================================================== */
+
+    function addAuthStyles() {
+
+        if (
+            document.getElementById(
+                "gsAuthDynamicStyles"
+            )
+        ) {
+            return;
+        }
+
+
+        const style =
+            document.createElement("style");
+
+
+        style.id =
+            "gsAuthDynamicStyles";
+
+
+        style.textContent = `
+
+            #gsAuthOverlay {
+                position: fixed;
+                inset: 0;
+                z-index: 999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                background: rgba(3, 10, 20, 0.82);
+                backdrop-filter: blur(18px);
+                -webkit-backdrop-filter: blur(18px);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition:
+                    opacity .25s ease,
+                    visibility .25s ease;
+                box-sizing: border-box;
+            }
+
+
+            #gsAuthOverlay.gs-open {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+            }
+
+
+            #gsAuthCard {
+                width: min(440px, 100%);
+                max-height: 92vh;
+                overflow-y: auto;
+                position: relative;
+                box-sizing: border-box;
+                padding: 30px 24px 26px;
+                border-radius: 28px;
+                background:
+                    linear-gradient(
+                        145deg,
+                        #10223c,
+                        #081322
+                    );
+                border: 1px solid rgba(
+                    255,
+                    255,
+                    255,
+                    .12
+                );
+                box-shadow:
+                    0 30px 90px rgba(
+                        0,
+                        0,
+                        0,
+                        .55
+                    );
+                color: #ffffff;
+                font-family:
+                    Arial,
+                    Helvetica,
+                    sans-serif;
+                transform: translateY(20px)
+                           scale(.97);
+                transition:
+                    transform .28s ease;
+            }
+
+
+            #gsAuthOverlay.gs-open
+            #gsAuthCard {
+                transform:
+                    translateY(0)
+                    scale(1);
+            }
+
+
+            #gsAuthClose {
+                position: absolute;
+                right: 17px;
+                top: 14px;
+                width: 40px;
+                height: 40px;
+                border: 0;
+                border-radius: 50%;
+                background: rgba(
+                    255,
+                    255,
+                    255,
+                    .08
+                );
+                color: white;
+                font-size: 28px;
+                line-height: 1;
+                cursor: pointer;
+            }
+
+
+            .gs-auth-logo {
+                width: 62px;
+                height: 62px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 14px;
+                border-radius: 18px;
+                background:
+                    linear-gradient(
+                        135deg,
+                        #ffd43b,
+                        #38bdf8
+                    );
+                color: #071426;
+                font-size: 25px;
+                font-weight: 900;
+                box-shadow:
+                    0 12px 35px rgba(
+                        255,
+                        205,
+                        50,
+                        .22
+                    );
+            }
+
+
+            .gs-auth-brand {
+                text-align: center;
+                color: #ffd43b;
+                font-size: 12px;
+                font-weight: 800;
+                letter-spacing: 3px;
+                margin-bottom: 9px;
+            }
+
+
+            #gsAuthTitle {
+                margin: 0;
+                text-align: center;
+                font-size: 28px;
+                line-height: 1.2;
+            }
+
+
+            #gsAuthSubtitle {
+                margin: 10px 0 24px;
+                text-align: center;
+                color: rgba(
+                    255,
+                    255,
+                    255,
+                    .65
+                );
+                font-size: 14px;
+                line-height: 1.5;
+            }
+
+
+            .gs-google-button {
+                width: 100%;
+                min-height: 54px;
+                border: 1px solid rgba(
+                    255,
+                    255,
+                    255,
+                    .14
+                );
+                border-radius: 15px;
+                background: #ffffff;
+                color: #111827;
+                font-size: 15px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+            }
+
+
+            .gs-google-icon {
+                font-weight: 900;
+                font-size: 19px;
+            }
+
+
+            .gs-divider {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin: 21px 0;
+                color: rgba(
+                    255,
+                    255,
+                    255,
+                    .42
+                );
+                font-size: 11px;
+            }
+
+
+            .gs-divider span {
+                height: 1px;
+                flex: 1;
+                background: rgba(
+                    255,
+                    255,
+                    255,
+                    .12
+                );
+            }
+
+
+            .gs-divider b {
+                font-weight: 700;
+            }
+
+
+            #gsEmailForm label {
+                display: block;
+                margin: 0 0 7px;
+                color: rgba(
+                    255,
+                    255,
+                    255,
+                    .8
+                );
+                font-size: 13px;
+                font-weight: 700;
+            }
+
+
+            #gsEmailForm input {
+                width: 100%;
+                height: 52px;
+                box-sizing: border-box;
+                margin-bottom: 17px;
+                padding: 0 15px;
+                border: 1px solid rgba(
+                    255,
+                    255,
+                    255,
+                    .12
+                );
+                border-radius: 14px;
+                outline: none;
+                background: rgba(
+                    255,
+                    255,
+                    255,
+                    .06
+                );
+                color: #ffffff;
+                font-size: 15px;
+            }
+
+
+            #gsEmailForm input::placeholder {
+                color: rgba(
+                    255,
+                    255,
+                    255,
+                    .38
+                );
+            }
+
+
+            #gsEmailForm input:focus {
+                border-color: #ffd43b;
+                box-shadow:
+                    0 0 0 3px rgba(
+                        255,
+                        212,
+                        59,
+                        .10
+                    );
+            }
+
+
+            .gs-password-wrap {
+                position: relative;
+            }
+
+
+            .gs-password-wrap input {
+                padding-right: 65px !important;
+            }
+
+
+            #gsPasswordToggle {
+                position: absolute;
+                right: 9px;
+                top: 6px;
+                height: 40px;
+                padding: 0 9px;
+                border: 0;
+                border-radius: 10px;
+                background: transparent;
+                color: #ffd43b;
+                font-size: 12px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+
+
+            .gs-submit {
+                width: 100%;
+                min-height: 54px;
+                margin-top: 3px;
+                border: 0;
+                border-radius: 15px;
+                background:
+                    linear-gradient(
+                        135deg,
+                        #ffd43b,
+                        #ffe77c
+                    );
+                color: #071426;
+                font-size: 15px;
+                font-weight: 900;
+                cursor: pointer;
+            }
+
+
+            .gs-forgot {
+                display: block;
+                margin: 17px auto 0;
+                border: 0;
+                background: transparent;
+                color: #6fd3ff;
+                font-size: 13px;
+                cursor: pointer;
+            }
+
+
+            .gs-auth-message {
+                min-height: 20px;
+                margin: 15px 0 0;
+                text-align: center;
+                color: #ffd43b;
+                font-size: 13px;
+                line-height: 1.4;
+            }
+
+
+            .gs-switch {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 5px;
+                margin-top: 21px;
+                padding-top: 19px;
+                border-top: 1px solid rgba(
+                    255,
+                    255,
+                    255,
+                    .09
+                );
+                color: rgba(
+                    255,
+                    255,
+                    255,
+                    .55
+                );
+                font-size: 13px;
+            }
+
+
+            #gsSwitchButton {
+                border: 0;
+                background: transparent;
+                color: #ffd43b;
+                font-weight: 800;
+                cursor: pointer;
+                font-size: 13px;
+            }
+
+
+            @media (max-width: 480px) {
+
+                #gsAuthOverlay {
+                    padding: 12px;
+                }
+
+                #gsAuthCard {
+                    padding:
+                        27px 19px 23px;
+                    border-radius: 24px;
+                }
+
+                #gsAuthTitle {
+                    font-size: 25px;
+                }
+
+            }
+
+        `;
+
+
+        document.head.appendChild(
+            style
+        );
+    }
+
+
+    /* =====================================================
+       3. AUTH CONTROLS
+       ===================================================== */
+
+    function connectAuthControls() {
+
+        const overlay =
+            document.getElementById(
+                "gsAuthOverlay"
+            );
+
+
+        const closeButton =
+            document.getElementById(
+                "gsAuthClose"
+            );
+
+
+        const googleButton =
+            document.getElementById(
+                "gsGoogleButton"
+            );
+
+
+        const form =
+            document.getElementById(
+                "gsEmailForm"
+            );
+
+
+        const passwordToggle =
+            document.getElementById(
+                "gsPasswordToggle"
+            );
+
+
+        const switchButton =
+            document.getElementById(
+                "gsSwitchButton"
+            );
+
+
+        const forgotButton =
+            document.getElementById(
+                "gsForgotPassword"
+            );
+
+
+        const message =
+            document.getElementById(
+                "gsAuthMessage"
+            );
+
+
+        const title =
+            document.getElementById(
+                "gsAuthTitle"
+            );
+
+
+        const subtitle =
+            document.getElementById(
+                "gsAuthSubtitle"
+            );
+
+
+        const switchText =
+            document.getElementById(
+                "gsSwitchText"
+            );
+
+
+        const submitButton =
+            document.getElementById(
+                "gsEmailSubmit"
+            );
+
+
+        const email =
+            document.getElementById(
+                "gsEmail"
+            );
+
+
+        const password =
+            document.getElementById(
+                "gsPassword"
+            );
+
+
+        function open(mode) {
+
+            authMode =
+                mode || "login";
+
+
+            updateText();
+
+
+            overlay.classList.add(
+                "gs-open"
+            );
+
+
+            document.body.style.overflow =
+                "hidden";
+
+
+            setTimeout(
+                function () {
+
+                    if (email) {
+                        email.focus();
+                    }
+
+                },
+                300
+            );
+        }
+
+
+        function close() {
+
+            overlay.classList.remove(
+                "gs-open"
+            );
+
+
+            document.body.style.overflow =
+                "";
+
+        }
+
+
+        function updateText() {
+
+            if (
+                authMode ===
+                "signup"
+            ) {
+
+                title.textContent =
+                    "Create your GS account";
+
+                subtitle.textContent =
+                    "Join GS Platform and turn your skills into opportunities.";
+
+                submitButton.textContent =
+                    "Create account";
+
+                switchText.textContent =
+                    "Already have an account?";
+
+                switchButton.textContent =
+                    "Log in";
+
+            } else {
+
+                title.textContent =
+                    "Welcome to GS";
+
+                subtitle.textContent =
+                    "Sign in to continue to GS Platform.";
+
+                submitButton.textContent =
+                    "Continue";
+
+                switchText.textContent =
+                    "Don't have an account?";
+
+                switchButton.textContent =
+                    "Create account";
+            }
+        }
+
+
+        closeButton.addEventListener(
+            "click",
+            close
+        );
+
+
+        overlay.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    overlay
+                ) {
+                    close();
+                }
+
+            }
+        );
+
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+                    close();
+                }
+
+            }
+        );
+
+
+        googleButton.addEventListener(
+            "click",
+            function () {
+
+                message.textContent =
+                    "Google authentication is ready for the Supabase connection.";
+
+            }
+        );
+
+
+        passwordToggle.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    password.type ===
+                    "password"
+                ) {
+
+                    password.type =
+                        "text";
+
+                    passwordToggle.textContent =
+                        "Hide";
+
+                } else {
+
+                    password.type =
+                        "password";
+
+                    passwordToggle.textContent =
+                        "Show";
+
+                }
+
+            }
+        );
+
+
+        switchButton.addEventListener(
+            "click",
+            function () {
+
+                authMode =
+                    authMode ===
+                    "login"
+                        ? "signup"
+                        : "login";
+
+                message.textContent =
+                    "";
+
+                updateText();
+
+            }
+        );
+
+
+        forgotButton.addEventListener(
+            "click",
+            function () {
+
+                message.textContent =
+                    "Password recovery will be connected through Supabase.";
+
+            }
+        );
+
+
+        form.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
+
+
+                if (
+                    !email.value.trim() ||
+                    !password.value
+                ) {
+
+                    message.textContent =
+                        "Please enter your email and password.";
+
+                    return;
+                }
+
+
+                message.textContent =
+                    authMode === "signup"
+                        ? "Your GS account setup will continue through Supabase."
+                        : "Your GS login will continue through Supabase.";
+
+            }
+        );
+
+
+        /* Expose the open function */
+        window.GSPlatformAuth =
+            {
+                open,
+                close
+            };
+    }
+
+
+    /* =====================================================
+       4. CONNECT LANDING BUTTONS
+       We search by visible text, so IDs don't matter.
+       ===================================================== */
+
+    function connectLandingButtons() {
+
+        const allElements =
+            document.querySelectorAll(
+                "button, a, [role='button']"
+            );
+
+
+        allElements.forEach(
+            function (element) {
+
+                const text =
+                    element.textContent
+                        .trim()
+                        .toLowerCase();
+
+
+                if (
+                    text.includes(
+                        "get started"
+                    )
+                ) {
+
+                    element.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.preventDefault();
+
+                            window.GSPlatformAuth.open(
+                                "signup"
+                            );
+
+                        }
+                    );
+
+                }
+
+
+                if (
+                    text === "log in" ||
+                    text === "login"
+                ) {
+
+                    element.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.preventDefault();
+
+                            window.GSPlatformAuth.open(
+                                "login"
+                            );
+
+                        }
+                    );
+
+                }
+
+            }
+        );
+    }
+
+
+    /* =====================================================
+       5. START
+       ===================================================== */
+
+    function startGSPlatform() {
+
+        createAuthWindow();
+
+        connectLandingButtons();
+
+
+        console.log(
+            "GS Platform authentication interface loaded."
+        );
 
     }
-  );
-}
 
-
-/* =========================================================
-   10. LOGIN BUTTONS
-   ========================================================= */
-
-if (heroLoginButton) {
-
-  heroLoginButton.addEventListener(
-    "click",
-    () => {
-
-      openAuth("login");
-
-    }
-  );
-}
-
-
-if (topLoginButton) {
-
-  topLoginButton.addEventListener(
-    "click",
-    () => {
-
-      openAuth("login");
-
-    }
-  );
-}
-
-
-/* =========================================================
-   11. CLOSE AUTH
-   ========================================================= */
-
-if (closeAuthButton) {
-
-  closeAuthButton.addEventListener(
-    "click",
-    closeAuth
-  );
-}
-
-
-/* Close when clicking outside the panel */
-
-if (authOverlay) {
-
-  authOverlay.addEventListener(
-    "click",
-    (event) => {
-
-      if (event.target === authOverlay) {
-
-        closeAuth();
-
-      }
-
-    }
-  );
-}
-
-
-/* Close with Escape */
-
-document.addEventListener(
-  "keydown",
-  (event) => {
 
     if (
-      event.key === "Escape" &&
-      authOverlay.classList.contains("active")
+        document.readyState ===
+        "loading"
     ) {
 
-      closeAuth();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   12. SWITCH LOGIN / SIGNUP
-   ========================================================= */
-
-if (authSwitchButton) {
-
-  authSwitchButton.addEventListener(
-    "click",
-    () => {
-
-      if (authMode === "login") {
-
-        authMode = "signup";
-
-      } else {
-
-        authMode = "login";
-
-      }
-
-      clearAuthMessage();
-
-      updateAuthInterface();
-
-    }
-  );
-}
-
-
-/* =========================================================
-   13. GOOGLE AUTHENTICATION
-   ========================================================= */
-
-if (googleButton) {
-
-  googleButton.addEventListener(
-    "click",
-    async () => {
-
-      clearAuthMessage();
-
-      googleButton.disabled = true;
-
-      googleButton.classList.add("loading");
-
-      googleButton.querySelector("span:last-child")
-        .textContent = "Connecting to Google...";
-
-
-      try {
-
-        const {
-          error
-        } = await supabaseClient.auth.signInWithOAuth({
-
-          provider: "google",
-
-          options: {
-
-            redirectTo:
-              window.location.origin
-
-          }
-
-        });
-
-
-        if (error) {
-
-          throw error;
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Google authentication error:",
-          error
+        document.addEventListener(
+            "DOMContentLoaded",
+            startGSPlatform
         );
 
-        showAuthMessage(
-          error.message ||
-          "Unable to connect to Google. Please try again.",
-          "error"
-        );
+    } else {
 
-        googleButton.disabled = false;
-
-        googleButton.classList.remove("loading");
-
-        googleButton.querySelector("span:last-child")
-          .textContent = "Continue with Google";
-
-      }
+        startGSPlatform();
 
     }
-  );
-}
 
-
-/* =========================================================
-   14. EMAIL LOGIN / SIGNUP
-   ========================================================= */
-
-if (emailAuthForm) {
-
-  emailAuthForm.addEventListener(
-    "submit",
-    async (event) => {
-
-      event.preventDefault();
-
-      clearAuthMessage();
-
-      const email =
-        emailInput.value.trim();
-
-      const password =
-        passwordInput.value;
-
-
-      if (!email || !password) {
-
-        showAuthMessage(
-          "Please enter your email and password.",
-          "error"
-        );
-
-        return;
-
-      }
-
-
-      emailSubmitButton.disabled = true;
-
-      emailSubmitButton.textContent =
-        authMode === "signup"
-          ? "Creating account..."
-          : "Signing in...";
-
-
-      try {
-
-        let result;
-
-
-        /* -------------------------
-           CREATE ACCOUNT
-           ------------------------- */
-
-        if (authMode === "signup") {
-
-          result =
-            await supabaseClient.auth.signUp({
-
-              email: email,
-
-              password: password,
-
-              options: {
-
-                emailRedirectTo:
-                  window.location.origin
-
-              }
-
-            });
-
-        }
-
-
-        /* -------------------------
-           LOGIN
-           ------------------------- */
-
-        else {
-
-          result =
-            await supabaseClient.auth.signInWithPassword({
-
-              email: email,
-
-              password: password
-
-            });
-
-        }
-
-
-        if (result.error) {
-
-          throw result.error;
-
-        }
-
-
-        /* -------------------------
-           SUCCESS
-           ------------------------- */
-
-        if (authMode === "signup") {
-
-          if (
-            result.data.user &&
-            !result.data.session
-          ) {
-
-            showAuthMessage(
-              "Account created. Please check your email to confirm your account.",
-              "success"
-            );
-
-          } else {
-
-            showAuthMessage(
-              "Your GS account has been created successfully.",
-              "success"
-            );
-
-          }
-
-        } else {
-
-          showAuthMessage(
-            "Login successful. Welcome back to GS Platform.",
-            "success"
-          );
-
-        }
-
-
-      } catch (error) {
-
-        console.error(
-          "Email authentication error:",
-          error
-        );
-
-        showAuthMessage(
-          getFriendlyAuthError(error),
-          "error"
-        );
-
-      } finally {
-
-        emailSubmitButton.disabled = false;
-
-        updateAuthInterface();
-
-      }
-
-    }
-  );
-}
-
-
-/* =========================================================
-   15. FRIENDLY AUTH ERRORS
-   ========================================================= */
-
-function getFriendlyAuthError(error) {
-
-  const message =
-    (error.message || "").toLowerCase();
-
-
-  if (
-    message.includes("invalid login credentials")
-  ) {
-
-    return "The email or password is incorrect.";
-
-  }
-
-
-  if (
-    message.includes("email not confirmed")
-  ) {
-
-    return "Please confirm your email before logging in.";
-
-  }
-
-
-  if (
-    message.includes("user already registered")
-  ) {
-
-    return "An account with this email already exists. Try logging in.";
-
-  }
-
-
-  if (
-    message.includes("password should be at least")
-  ) {
-
-    return "Your password is too short. Please use a stronger password.";
-
-  }
-
-
-  if (
-    message.includes("rate limit")
-  ) {
-
-    return "Too many attempts. Please wait a little and try again.";
-
-  }
-
-
-  return (
-    error.message ||
-    "Something went wrong. Please try again."
-  );
-}
-
-
-/* =========================================================
-   16. SHOW / HIDE PASSWORD
-   ========================================================= */
-
-if (togglePassword) {
-
-  togglePassword.addEventListener(
-    "click",
-    () => {
-
-      if (
-        passwordInput.type === "password"
-      ) {
-
-        passwordInput.type = "text";
-
-        togglePassword.textContent =
-          "Hide";
-
-      } else {
-
-        passwordInput.type = "password";
-
-        togglePassword.textContent =
-          "Show";
-
-      }
-
-    }
-  );
-}
-
-
-/* =========================================================
-   17. FORGOT PASSWORD
-   ========================================================= */
-
-if (forgotPasswordButton) {
-
-  forgotPasswordButton.addEventListener(
-    "click",
-    async () => {
-
-      const email =
-        emailInput.value.trim();
-
-
-      if (!email) {
-
-        showAuthMessage(
-          "Enter your email first, then choose Forgot password.",
-          "error"
-        );
-
-        emailInput.focus();
-
-        return;
-
-      }
-
-
-      forgotPasswordButton.disabled = true;
-
-      try {
-
-        const {
-          error
-        } =
-          await supabaseClient.auth
-            .resetPasswordForEmail(
-              email,
-              {
-                redirectTo:
-                  `${window.location.origin}/reset-password.html`
-              }
-            );
-
-
-        if (error) {
-
-          throw error;
-
-        }
-
-
-        showAuthMessage(
-          "Password reset instructions have been sent to your email.",
-          "success"
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Password reset error:",
-          error
-        );
-
-        showAuthMessage(
-          error.message ||
-          "Unable to send password reset email.",
-          "error"
-        );
-
-      } finally {
-
-        forgotPasswordButton.disabled = false;
-
-      }
-
-    }
-  );
-}
-
-
-/* =========================================================
-   18. AUTH SESSION
-   ========================================================= */
-
-async function checkCurrentSession() {
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.getSession();
-
-
-    if (error) {
-
-      throw error;
-
-    }
-
-
-    if (data.session) {
-
-      console.log(
-        "GS user is signed in:",
-        data.session.user.email
-      );
-
-      /*
-       * Later this is where we will send the user
-       * into the actual GS Platform dashboard.
-       *
-       * We are NOT redirecting yet because the
-       * dashboard has not been built.
-       */
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Session check failed:",
-      error
-    );
-
-  }
-
-}
-
-
-checkCurrentSession();
-
-
-/* =========================================================
-   19. AUTH STATE CHANGES
-   ========================================================= */
-
-supabaseClient.auth.onAuthStateChange(
-  (event, session) => {
-
-    console.log(
-      "GS Auth event:",
-      event
-    );
-
-
-    if (event === "SIGNED_IN" && session) {
-
-      console.log(
-        "User signed in:",
-        session.user.email
-      );
-
-      /*
-       * Later:
-       * window.location.href = "/app.html";
-       *
-       * We wait until the GS Platform dashboard
-       * actually exists.
-       */
-
-    }
-
-
-    if (event === "SIGNED_OUT") {
-
-      console.log(
-        "User signed out."
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   20. LOGOUT FUNCTION
-   =========================================================
-
-   We don't have a visible logout button on this first
-   screen yet, but the function is ready for the app.
-   ========================================================= */
-
-async function gsLogout() {
-
-  try {
-
-    const {
-      error
-    } = await supabaseClient.auth.signOut();
-
-
-    if (error) {
-
-      throw error;
-
-    }
-
-    console.log(
-      "GS user logged out."
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "Logout error:",
-      error
-    );
-
-  }
-
-}
-
-
-/* Make logout available to the rest of the app */
-
-window.gsLogout = gsLogout;
-
-
-/* =========================================================
-   21. ROTATING HERO CONTENT
-   ========================================================= */
-
-const heroSlides = [
-
-  {
-    word: "Your opportunity.",
-    message:
-      "Find work that matches what you do best."
-  },
-
-  {
-    word: "Your future.",
-    message:
-      "Turn your skills into meaningful opportunities."
-  },
-
-  {
-    word: "Your reputation.",
-    message:
-      "Build trust through the work you deliver."
-  },
-
-  {
-    word: "Your growth.",
-    message:
-      "Do great work. Build your name. Go further."
-  },
-
-  {
-    word: "Your platform.",
-    message:
-      "One place to discover, work, communicate and grow."
-  }
-
-];
-
-
-let currentSlide = 0;
-
-
-function changeHeroSlide() {
-
-  if (!rotatingWord || !rotatingMessage) {
-    return;
-  }
-
-
-  rotatingWord.classList.add(
-    "changing"
-  );
-
-  rotatingMessage.classList.add(
-    "changing"
-  );
-
-
-  setTimeout(() => {
-
-    currentSlide =
-      (currentSlide + 1) %
-      heroSlides.length;
-
-
-    rotatingWord.textContent =
-      heroSlides[currentSlide].word;
-
-
-    rotatingMessage.textContent =
-      heroSlides[currentSlide].message;
-
-
-    rotatingWord.classList.remove(
-      "changing"
-    );
-
-    rotatingMessage.classList.remove(
-      "changing"
-    );
-
-  }, 350);
-}
-
-
-/* Change every 4 seconds */
-
-setInterval(
-  changeHeroSlide,
-  4000
-);
-
-
-/* =========================================================
-   22. INITIAL MESSAGE
-   ========================================================= */
-
-console.log(
-  "GS Platform frontend initialized."
-);
-
-console.log(
-  "Authentication system ready."
-)
+})();
