@@ -1,1314 +1,164 @@
-"use strict";
+// ============================================
+// GS PLATFORM — AUTHENTICATION CONTROLLER
+// ============================================
 
-/* =========================================================
-   GS PLATFORM
-   SUPABASE AUTHENTICATION
-   ========================================================= */
+const SUPABASE_URL = "https://xykhrjrsfrcxdmvtwsww.supabase.co";
+const SUPABASE_KEY = "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
 
+let supabaseClient;
 
-/* =========================================================
-   1. YOUR SUPABASE PROJECT
-   ========================================================= */
-
-const SUPABASE_URL =
-    "https://xykhrjrsfrcxdmvtwsww.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
-
-
-let supabaseClient = null;
-let authMode = "login";
-
-
-/* =========================================================
-   2. LOAD SUPABASE LIBRARY
-   ========================================================= */
-
-function loadSupabaseLibrary() {
-
+// --------------------------------------------
+// Load Supabase if the HTML hasn't loaded it
+// --------------------------------------------
+function loadSupabase() {
     return new Promise((resolve, reject) => {
-
-        if (
-            window.supabase &&
-            typeof window.supabase.createClient === "function"
-        ) {
+        if (window.supabase) {
             resolve();
             return;
         }
 
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
 
-        const existing =
-            document.querySelector(
-                'script[src*="supabase-js"]'
-            );
+// --------------------------------------------
+// Initialize
+// --------------------------------------------
+async function initializeAuth() {
+    try {
+        await loadSupabase();
 
+        supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
 
-        if (existing) {
+        // Check whether the user has returned from Google
+        const {
+            data: { session }
+        } = await supabaseClient.auth.getSession();
 
-            existing.addEventListener(
-                "load",
-                resolve
-            );
-
-            existing.addEventListener(
-                "error",
-                reject
-            );
-
+        if (session) {
+            goToRolePage();
             return;
         }
 
+        setupGoogleLogin();
 
-        const script =
-            document.createElement("script");
+    } catch (error) {
+        console.error("GS Auth initialization error:", error);
+    }
+}
 
+// --------------------------------------------
+// Google Login
+// --------------------------------------------
+function setupGoogleLogin() {
 
-        script.src =
-            "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    const allButtons = document.querySelectorAll("button, a");
 
+    allButtons.forEach((button) => {
 
-        script.async = true;
+        const text = (button.textContent || "").toLowerCase();
 
+        if (
+            text.includes("google") ||
+            text.includes("continue with google") ||
+            text.includes("sign in with google")
+        ) {
 
-        script.onload = resolve;
+            button.addEventListener("click", async (event) => {
 
+                event.preventDefault();
 
-        script.onerror = () => {
+                try {
 
-            reject(
-                new Error(
-                    "Supabase library could not be loaded."
-                )
-            );
+                    button.disabled = true;
 
-        };
+                    const redirectUrl =
+                        window.location.origin +
+                        window.location.pathname
+                            .replace("index.html", "") +
+                        "role.html";
 
+                    const { error } =
+                        await supabaseClient.auth.signInWithOAuth({
+                            provider: "google",
+                            options: {
+                                redirectTo: redirectUrl
+                            }
+                        });
 
-        document.head.appendChild(script);
+                    if (error) {
+                        console.error("Google login error:", error);
+                        button.disabled = false;
+                    }
+
+                } catch (error) {
+
+                    console.error("Google login error:", error);
+                    button.disabled = false;
+
+                }
+
+            });
+
+        }
 
     });
 }
 
+// --------------------------------------------
+// Send authenticated user to role selection
+// --------------------------------------------
+function goToRolePage() {
 
-/* =========================================================
-   3. CONNECT TO SUPABASE
-   ========================================================= */
+    const roleUrl =
+        window.location.origin +
+        window.location.pathname
+            .replace("index.html", "") +
+        "role.html";
 
-async function initializeSupabase() {
-
-    try {
-
-        await loadSupabaseLibrary();
-
-
-        supabaseClient =
-            window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_PUBLISHABLE_KEY
-            );
-
-
-        console.log(
-            "GS Platform: Supabase connected successfully."
-        );
-
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "GS Platform: Supabase connection failed.",
-            error
-        );
-
-
-        return false;
-    }
+    window.location.href = roleUrl;
 }
 
+// --------------------------------------------
+// Watch authentication state
+// --------------------------------------------
+async function watchAuthState() {
 
-/* =========================================================
-   4. CREATE AUTH WINDOW
-   ========================================================= */
+    if (!supabaseClient) return;
 
-function createAuthWindow() {
-
-    if (
-        document.getElementById(
-            "gsAuthOverlay"
-        )
-    ) {
-        return;
-    }
-
-
-    const overlay =
-        document.createElement("div");
-
-
-    overlay.id =
-        "gsAuthOverlay";
-
-
-    overlay.innerHTML = `
-
-        <div id="gsAuthCard">
-
-            <button
-                id="gsAuthClose"
-                type="button"
-                aria-label="Close"
-            >
-                ×
-            </button>
-
-
-            <div class="gs-auth-logo">
-                GS
-            </div>
-
-
-            <div class="gs-auth-brand">
-                GS PLATFORM
-            </div>
-
-
-            <h2 id="gsAuthTitle">
-                Welcome to GS
-            </h2>
-
-
-            <p id="gsAuthSubtitle">
-                Sign in to continue to GS Platform.
-            </p>
-
-
-            <button
-                id="gsGoogleButton"
-                class="gs-google-button"
-                type="button"
-            >
-                <span class="gs-google-icon">
-                    G
-                </span>
-
-                Continue with Google
-            </button>
-
-
-            <div class="gs-divider">
-                <span></span>
-                <b>OR</b>
-                <span></span>
-            </div>
-
-
-            <form id="gsEmailForm">
-
-                <label for="gsEmail">
-                    Email address
-                </label>
-
-                <input
-                    id="gsEmail"
-                    type="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    required
-                >
-
-
-                <label for="gsPassword">
-                    Password
-                </label>
-
-                <div class="gs-password-wrap">
-
-                    <input
-                        id="gsPassword"
-                        type="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    >
-
-                    <button
-                        id="gsPasswordToggle"
-                        type="button"
-                    >
-                        Show
-                    </button>
-
-                </div>
-
-
-                <button
-                    id="gsEmailSubmit"
-                    class="gs-submit"
-                    type="submit"
-                >
-                    Continue
-                </button>
-
-            </form>
-
-
-            <button
-                id="gsForgotPassword"
-                class="gs-forgot"
-                type="button"
-            >
-                Forgot password?
-            </button>
-
-
-            <p
-                id="gsAuthMessage"
-                class="gs-auth-message"
-            ></p>
-
-
-            <div class="gs-switch">
-
-                <span id="gsSwitchText">
-                    Don't have an account?
-                </span>
-
-                <button
-                    id="gsSwitchButton"
-                    type="button"
-                >
-                    Create account
-                </button>
-
-            </div>
-
-        </div>
-    `;
-
-
-    document.body.appendChild(
-        overlay
-    );
-
-
-    addAuthStyles();
-
-    connectAuthControls();
-}
-
-
-/* =========================================================
-   5. AUTH STYLES
-   ========================================================= */
-
-function addAuthStyles() {
-
-    if (
-        document.getElementById(
-            "gsAuthDynamicStyles"
-        )
-    ) {
-        return;
-    }
-
-
-    const style =
-        document.createElement("style");
-
-
-    style.id =
-        "gsAuthDynamicStyles";
-
-
-    style.textContent = `
-
-        #gsAuthOverlay {
-            position: fixed;
-            inset: 0;
-            z-index: 999999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: rgba(3,10,20,.82);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition:
-                opacity .25s ease,
-                visibility .25s ease;
-            box-sizing: border-box;
-        }
-
-
-        #gsAuthOverlay.gs-open {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
-        }
-
-
-        #gsAuthCard {
-            width: min(440px,100%);
-            max-height: 92vh;
-            overflow-y: auto;
-            position: relative;
-            box-sizing: border-box;
-            padding: 30px 24px 26px;
-            border-radius: 28px;
-            background:
-                linear-gradient(
-                    145deg,
-                    #10223c,
-                    #081322
-                );
-            border: 1px solid rgba(
-                255,255,255,.12
-            );
-            box-shadow:
-                0 30px 90px rgba(
-                    0,0,0,.55
-                );
-            color: #fff;
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-            transform:
-                translateY(20px)
-                scale(.97);
-            transition:
-                transform .28s ease;
-        }
-
-
-        #gsAuthOverlay.gs-open
-        #gsAuthCard {
-            transform:
-                translateY(0)
-                scale(1);
-        }
-
-
-        #gsAuthClose {
-            position: absolute;
-            right: 17px;
-            top: 14px;
-            width: 40px;
-            height: 40px;
-            border: 0;
-            border-radius: 50%;
-            background:
-                rgba(255,255,255,.08);
-            color: #fff;
-            font-size: 28px;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-
-        .gs-auth-logo {
-            width: 62px;
-            height: 62px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 14px;
-            border-radius: 18px;
-            background:
-                linear-gradient(
-                    135deg,
-                    #ffd43b,
-                    #38bdf8
-                );
-            color: #071426;
-            font-size: 25px;
-            font-weight: 900;
-        }
-
-
-        .gs-auth-brand {
-            text-align: center;
-            color: #ffd43b;
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: 3px;
-            margin-bottom: 9px;
-        }
-
-
-        #gsAuthTitle {
-            margin: 0;
-            text-align: center;
-            font-size: 28px;
-            line-height: 1.2;
-        }
-
-
-        #gsAuthSubtitle {
-            margin: 10px 0 24px;
-            text-align: center;
-            color: rgba(255,255,255,.65);
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-
-        .gs-google-button {
-            width: 100%;
-            min-height: 54px;
-            border: 1px solid rgba(
-                255,255,255,.14
-            );
-            border-radius: 15px;
-            background: #fff;
-            color: #111827;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-
-        .gs-google-icon {
-            font-weight: 900;
-            font-size: 19px;
-        }
-
-
-        .gs-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 21px 0;
-            color: rgba(255,255,255,.42);
-            font-size: 11px;
-        }
-
-
-        .gs-divider span {
-            height: 1px;
-            flex: 1;
-            background:
-                rgba(255,255,255,.12);
-        }
-
-
-        #gsEmailForm label {
-            display: block;
-            margin: 0 0 7px;
-            color: rgba(255,255,255,.8);
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-
-        #gsEmailForm input {
-            width: 100%;
-            height: 52px;
-            box-sizing: border-box;
-            margin-bottom: 17px;
-            padding: 0 15px;
-            border:
-                1px solid
-                rgba(255,255,255,.12);
-            border-radius: 14px;
-            outline: none;
-            background:
-                rgba(255,255,255,.06);
-            color: #fff;
-            font-size: 15px;
-        }
-
-
-        #gsEmailForm input::placeholder {
-            color:
-                rgba(255,255,255,.38);
-        }
-
-
-        #gsEmailForm input:focus {
-            border-color: #ffd43b;
-            box-shadow:
-                0 0 0 3px
-                rgba(255,212,59,.10);
-        }
-
-
-        .gs-password-wrap {
-            position: relative;
-        }
-
-
-        .gs-password-wrap input {
-            padding-right: 65px !important;
-        }
-
-
-        #gsPasswordToggle {
-            position: absolute;
-            right: 9px;
-            top: 6px;
-            height: 40px;
-            padding: 0 9px;
-            border: 0;
-            border-radius: 10px;
-            background: transparent;
-            color: #ffd43b;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-
-        .gs-submit {
-            width: 100%;
-            min-height: 54px;
-            margin-top: 3px;
-            border: 0;
-            border-radius: 15px;
-            background:
-                linear-gradient(
-                    135deg,
-                    #ffd43b,
-                    #ffe77c
-                );
-            color: #071426;
-            font-size: 15px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-
-        .gs-forgot {
-            display: block;
-            margin: 17px auto 0;
-            border: 0;
-            background: transparent;
-            color: #6fd3ff;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-
-        .gs-auth-message {
-            min-height: 20px;
-            margin: 15px 0 0;
-            text-align: center;
-            color: #ffd43b;
-            font-size: 13px;
-            line-height: 1.4;
-        }
-
-
-        .gs-switch {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 21px;
-            padding-top: 19px;
-            border-top:
-                1px solid
-                rgba(255,255,255,.09);
-            color:
-                rgba(255,255,255,.55);
-            font-size: 13px;
-        }
-
-
-        #gsSwitchButton {
-            border: 0;
-            background: transparent;
-            color: #ffd43b;
-            font-weight: 800;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-
-        @media (max-width:480px) {
-
-            #gsAuthOverlay {
-                padding: 12px;
-            }
-
-            #gsAuthCard {
-                padding:
-                    27px 19px 23px;
-                border-radius: 24px;
-            }
-
-            #gsAuthTitle {
-                font-size: 25px;
-            }
-        }
-    `;
-
-
-    document.head.appendChild(
-        style
-    );
-}
-
-
-/* =========================================================
-   6. AUTH CONTROLS
-   ========================================================= */
-
-function connectAuthControls() {
-
-    const overlay =
-        document.getElementById(
-            "gsAuthOverlay"
-        );
-
-    const closeButton =
-        document.getElementById(
-            "gsAuthClose"
-        );
-
-    const googleButton =
-        document.getElementById(
-            "gsGoogleButton"
-        );
-
-    const form =
-        document.getElementById(
-            "gsEmailForm"
-        );
-
-    const passwordToggle =
-        document.getElementById(
-            "gsPasswordToggle"
-        );
-
-    const switchButton =
-        document.getElementById(
-            "gsSwitchButton"
-        );
-
-    const forgotButton =
-        document.getElementById(
-            "gsForgotPassword"
-        );
-
-    const message =
-        document.getElementById(
-            "gsAuthMessage"
-        );
-
-    const title =
-        document.getElementById(
-            "gsAuthTitle"
-        );
-
-    const subtitle =
-        document.getElementById(
-            "gsAuthSubtitle"
-        );
-
-    const switchText =
-        document.getElementById(
-            "gsSwitchText"
-        );
-
-    const submitButton =
-        document.getElementById(
-            "gsEmailSubmit"
-        );
-
-    const email =
-        document.getElementById(
-            "gsEmail"
-        );
-
-    const password =
-        document.getElementById(
-            "gsPassword"
-        );
-
-
-    function open(mode) {
-
-        authMode =
-            mode || "login";
-
-
-        updateText();
-
-
-        overlay.classList.add(
-            "gs-open"
-        );
-
-
-        document.body.style.overflow =
-            "hidden";
-
-
-        setTimeout(
-            function () {
-
-                if (email) {
-                    email.focus();
-                }
-
-            },
-            300
-        );
-    }
-
-
-    function close() {
-
-        overlay.classList.remove(
-            "gs-open"
-        );
-
-
-        document.body.style.overflow =
-            "";
-    }
-
-
-    function updateText() {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
 
         if (
-            authMode ===
-            "signup"
+            session &&
+            (
+                event === "SIGNED_IN" ||
+                event === "INITIAL_SESSION"
+            )
         ) {
 
-            title.textContent =
-                "Create your GS account";
+            goToRolePage();
 
-            subtitle.textContent =
-                "Join GS Platform and turn your skills into opportunities.";
-
-            submitButton.textContent =
-                "Create account";
-
-            switchText.textContent =
-                "Already have an account?";
-
-            switchButton.textContent =
-                "Log in";
-
-        } else {
-
-            title.textContent =
-                "Welcome to GS";
-
-            subtitle.textContent =
-                "Sign in to continue to GS Platform.";
-
-            submitButton.textContent =
-                "Continue";
-
-            switchText.textContent =
-                "Don't have an account?";
-
-            switchButton.textContent =
-                "Create account";
         }
+
+    });
+}
+
+// --------------------------------------------
+// Start GS Platform authentication
+// --------------------------------------------
+(async function () {
+
+    await initializeAuth();
+
+    if (supabaseClient) {
+        await watchAuthState();
     }
 
-
-    closeButton.addEventListener(
-        "click",
-        close
-    );
-
-
-    overlay.addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                event.target ===
-                overlay
-            ) {
-                close();
-            }
-        }
-    );
-
-
-    document.addEventListener(
-        "keydown",
-        function (event) {
-
-            if (
-                event.key ===
-                "Escape"
-            ) {
-                close();
-            }
-        }
-    );
-
-
-    /* =====================================================
-       REAL GOOGLE LOGIN
-       ===================================================== */
-
-    googleButton.addEventListener(
-        "click",
-        async function () {
-
-            message.textContent =
-                "Connecting to Google...";
-
-
-            if (!supabaseClient) {
-
-                message.textContent =
-                    "Supabase is still connecting. Please try again in a moment.";
-
-                return;
-            }
-
-
-            googleButton.disabled =
-                true;
-
-
-            try {
-
-                const {
-                    error
-                } =
-                    await supabaseClient.auth
-                        .signInWithOAuth({
-
-                            provider:
-                                "google",
-
-                            options: {
-
-                                redirectTo:
-                                    window.location.href
-
-                            }
-
-                        });
-
-
-                if (error) {
-                    throw error;
-                }
-
-
-            } catch (error) {
-
-                console.error(
-                    "Google login error:",
-                    error
-                );
-
-
-                message.textContent =
-                    error.message ||
-                    "Google login could not be started.";
-
-            } finally {
-
-                googleButton.disabled =
-                    false;
-
-            }
-        }
-    );
-
-
-    /* =====================================================
-       REAL EMAIL LOGIN / SIGNUP
-       ===================================================== */
-
-    form.addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-
-            const emailValue =
-                email.value.trim();
-
-            const passwordValue =
-                password.value;
-
-
-            if (
-                !emailValue ||
-                !passwordValue
-            ) {
-
-                message.textContent =
-                    "Please enter your email and password.";
-
-                return;
-            }
-
-
-            if (!supabaseClient) {
-
-                message.textContent =
-                    "Supabase is still connecting. Please try again.";
-
-                return;
-            }
-
-
-            submitButton.disabled =
-                true;
-
-
-            submitButton.textContent =
-                authMode === "signup"
-                    ? "Creating account..."
-                    : "Signing in...";
-
-
-            try {
-
-                let result;
-
-
-                if (
-                    authMode ===
-                    "signup"
-                ) {
-
-                    result =
-                        await supabaseClient.auth
-                            .signUp({
-
-                                email:
-                                    emailValue,
-
-                                password:
-                                    passwordValue,
-
-                                options: {
-
-                                    emailRedirectTo:
-                                        window.location.href
-
-                                }
-
-                            });
-
-                } else {
-
-                    result =
-                        await supabaseClient.auth
-                            .signInWithPassword({
-
-                                email:
-                                    emailValue,
-
-                                password:
-                                    passwordValue
-
-                            });
-
-                }
-
-
-                if (result.error) {
-                    throw result.error;
-                }
-
-
-                if (
-                    authMode ===
-                    "signup"
-                ) {
-
-                    message.textContent =
-                        result.data.session
-                            ? "Account created successfully."
-                            : "Account created. Check your email to confirm your account.";
-
-                } else {
-
-                    message.textContent =
-                        "Login successful. Welcome to GS Platform.";
-
-                }
-
-            } catch (error) {
-
-                console.error(
-                    "Email authentication error:",
-                    error
-                );
-
-
-                message.textContent =
-                    error.message ||
-                    "Authentication failed.";
-
-            } finally {
-
-                submitButton.disabled =
-                    false;
-
-                updateText();
-            }
-        }
-    );
-
-
-    /* =====================================================
-       PASSWORD VISIBILITY
-       ===================================================== */
-
-    passwordToggle.addEventListener(
-        "click",
-        function () {
-
-            if (
-                password.type ===
-                "password"
-            ) {
-
-                password.type =
-                    "text";
-
-                passwordToggle.textContent =
-                    "Hide";
-
-            } else {
-
-                password.type =
-                    "password";
-
-                passwordToggle.textContent =
-                    "Show";
-            }
-        }
-    );
-
-
-    /* =====================================================
-       LOGIN / SIGNUP SWITCH
-       ===================================================== */
-
-    switchButton.addEventListener(
-        "click",
-        function () {
-
-            authMode =
-                authMode ===
-                "login"
-                    ? "signup"
-                    : "login";
-
-
-            message.textContent =
-                "";
-
-
-            updateText();
-        }
-    );
-
-
-    /* =====================================================
-       PASSWORD RESET
-       ===================================================== */
-
-    forgotButton.addEventListener(
-        "click",
-        async function () {
-
-            const emailValue =
-                email.value.trim();
-
-
-            if (!emailValue) {
-
-                message.textContent =
-                    "Enter your email address first.";
-
-                email.focus();
-
-                return;
-            }
-
-
-            if (!supabaseClient) {
-
-                message.textContent =
-                    "Supabase is still connecting.";
-
-                return;
-            }
-
-
-            try {
-
-                const {
-                    error
-                } =
-                    await supabaseClient.auth
-                        .resetPasswordForEmail(
-                            emailValue,
-                            {
-                                redirectTo:
-                                    window.location.href
-                            }
-                        );
-
-
-                if (error) {
-                    throw error;
-                }
-
-
-                message.textContent =
-                    "Password reset instructions have been sent to your email.";
-
-            } catch (error) {
-
-                message.textContent =
-                    error.message ||
-                    "Unable to send password reset email.";
-            }
-        }
-    );
-
-
-    window.GSPlatformAuth = {
-        open,
-        close
-    };
-}
-
-
-/* =========================================================
-   7. CONNECT LANDING-PAGE BUTTONS
-   ========================================================= */
-
-function connectLandingButtons() {
-
-    const elements =
-        document.querySelectorAll(
-            "button, a, [role='button']"
-        );
-
-
-    elements.forEach(
-        function (element) {
-
-            const text =
-                element.textContent
-                    .trim()
-                    .toLowerCase();
-
-
-            if (
-                text.includes(
-                    "get started"
-                )
-            ) {
-
-                element.addEventListener(
-                    "click",
-                    function (event) {
-
-                        event.preventDefault();
-
-                        window.GSPlatformAuth.open(
-                            "signup"
-                        );
-                    }
-                );
-            }
-
-
-            if (
-                text === "log in" ||
-                text === "login"
-            ) {
-
-                element.addEventListener(
-                    "click",
-                    function (event) {
-
-                        event.preventDefault();
-
-                        window.GSPlatformAuth.open(
-                            "login"
-                        );
-                    }
-                );
-            }
-        }
-    );
-}
-
-
-/* =========================================================
-   8. START GS PLATFORM
-   ========================================================= */
-
-async function startGSPlatform() {
-
-    createAuthWindow();
-
-    connectLandingButtons();
-
-
-    /*
-     * Connect Supabase in the background.
-     */
-
-    const connected =
-        await initializeSupabase();
-
-
-    if (connected) {
-
-        console.log(
-            "GS Platform: REAL SUPABASE AUTHENTICATION IS READY."
-        );
-
-    } else {
-
-        console.error(
-            "GS Platform: Supabase authentication is not available."
-        );
-    }
-}
-
-
-/* =========================================================
-   9. START
-   ========================================================= */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        startGSPlatform
-    );
-
-} else {
-
-    startGSPlatform();
-}
+})();
