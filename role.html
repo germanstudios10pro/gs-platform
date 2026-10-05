@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+        name="description"
+        content="Choose how you want to use GS Platform."
+    >
+
+    <title>Choose Your Role — GS Platform</title>
+
+    <link rel="stylesheet" href="role.css">
+</head>
+
+<body>
+
+    <main class="role-page">
+
+        <!-- Top brand -->
+        <header class="top-bar">
+            <a href="index.html" class="brand" aria-label="GS Platform home">
+                <img
+                    src="GS_LOGO.jpg"
+                    alt="GS Platform"
+                    class="brand-logo"
+                >
+            </a>
+
+            <div class="secure-label">
+                <span class="secure-dot"></span>
+                Secure account setup
+            </div>
+        </header>
+
+
+        <!-- Main content -->
+        <section class="role-container">
+
+            <div class="welcome-section">
+
+                <div class="welcome-badge">
+                    STEP 1 OF 2
+                </div>
+
+                <h1>
+                    Welcome to
+                    <span>GS Platform</span>
+                </h1>
+
+                <p class="subtitle">
+                    How do you want to use GS Platform?
+                </p>
+
+                <p class="description">
+                    Choose the option that best describes what you want
+                    to do on GS Platform. You can build your profile and
+                    start using the platform after this step.
+                </p>
+
+            </div>
+
+
+            <!-- Role choices -->
+            <div class="role-options">
+
+                <!-- Freelancer -->
+                <button
+                    type="button"
+                    class="role-card"
+                    id="freelancerCard"
+                    data-role="freelancer"
+                >
+
+                    <div class="role-icon freelancer-icon">
+                        <span>✦</span>
+                    </div>
+
+                    <div class="role-content">
+
+                        <div class="role-heading">
+                            <h2>I’m a Freelancer</h2>
+
+                            <span class="arrow">
+                                →
+                            </span>
+                        </div>
+
+                        <p>
+                            I offer skills, services and expertise
+                            and want to get hired by clients.
+                        </p>
+
+                        <div class="role-features">
+                            <span>Offer your skills</span>
+                            <span>Find opportunities</span>
+                            <span>Build your reputation</span>
+                        </div>
+
+                    </div>
+
+                </button>
+
+
+                <!-- Client -->
+                <button
+                    type="button"
+                    class="role-card"
+                    id="clientCard"
+                    data-role="client"
+                >
+
+                    <div class="role-icon client-icon">
+                        <span>◆</span>
+                    </div>
+
+                    <div class="role-content">
+
+                        <div class="role-heading">
+                            <h2>I’m a Client</h2>
+
+                            <span class="arrow">
+                                →
+                            </span>
+                        </div>
+
+                        <p>
+                            I need skills, services or expertise
+                            and want to hire freelancers.
+                        </p>
+
+                        <div class="role-features">
+                            <span>Find skilled people</span>
+                            <span>Post opportunities</span>
+                            <span>Manage your projects</span>
+                        </div>
+
+                    </div>
+
+                </button>
+
+            </div>
+
+
+            <!-- Status -->
+            <div
+                class="status-message"
+                id="statusMessage"
+                role="status"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- Bottom information -->
+            <div class="bottom-note">
+
+                <div class="shield-icon">
+                    ✓
+                </div>
+
+                <p>
+                    Your account is already secured.
+                    This choice helps GS Platform personalize
+                    your experience.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Loading screen -->
+        <div
+            class="loading-overlay"
+            id="loadingOverlay"
+            aria-hidden="true"
+        >
+
+            <div class="loading-box">
+
+                <div class="loader"></div>
+
+                <p id="loadingText">
+                    Setting up your account...
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+    <script src="role.js"></script>
+
+</body>
+</html>
