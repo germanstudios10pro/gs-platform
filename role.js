@@ -1,464 +1,473 @@
-/* =========================================================
-   GS PLATFORM — ROLE SELECTION
-   File: role.js
-
-   Purpose:
-   - Connect role selection to Supabase Auth
-   - Verify that the user is logged in
-   - Save Freelancer / Client selection
-   - Protect this page from logged-out visitors
-   ========================================================= */
-
-
-/* =========================================================
-   1. SUPABASE CONFIGURATION
-   ========================================================= */
+// ============================================================
+// GS PLATFORM
+// ROLE SELECTION
+// File: role.js
+// ============================================================
 
 const SUPABASE_URL = "https://xykhrjrsfrcxdmvtwsww.supabase.co";
 
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
+const SUPABASE_KEY =
+  "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
 
-
-const { createClient } = window.supabase;
-
-const supabaseClient = createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
 );
 
 
-/* =========================================================
-   2. PAGE ELEMENTS
-   ========================================================= */
+// ============================================================
+// PAGE ELEMENTS
+// ============================================================
 
 const freelancerCard =
-    document.getElementById("freelancerCard");
+  document.getElementById("freelancerCard");
 
 const clientCard =
-    document.getElementById("clientCard");
+  document.getElementById("clientCard");
 
 const statusMessage =
-    document.getElementById("statusMessage");
+  document.getElementById("statusMessage");
 
 const loadingOverlay =
-    document.getElementById("loadingOverlay");
+  document.getElementById("loadingOverlay");
 
 const loadingText =
-    document.getElementById("loadingText");
+  document.getElementById("loadingText");
 
 
-/* =========================================================
-   3. HELPER — SHOW STATUS
-   ========================================================= */
+// ============================================================
+// STARTUP
+// ============================================================
 
-function showStatus(message, isError = false) {
+document.addEventListener("DOMContentLoaded", async () => {
 
-    if (!statusMessage) {
-        return;
-    }
+  console.log("GS Platform role.js loaded.");
 
-    statusMessage.textContent = message;
+  await checkLoggedInUser();
 
-    statusMessage.classList.add("show");
-
-    if (isError) {
-        statusMessage.classList.add("error");
-    } else {
-        statusMessage.classList.remove("error");
-    }
-}
+});
 
 
-/* =========================================================
-   4. HELPER — CLEAR STATUS
-   ========================================================= */
+// ============================================================
+// CHECK LOGIN
+// ============================================================
 
-function clearStatus() {
+async function checkLoggedInUser() {
 
-    if (!statusMessage) {
-        return;
-    }
-
-    statusMessage.textContent = "";
-
-    statusMessage.classList.remove(
-        "show",
-        "error"
-    );
-}
-
-
-/* =========================================================
-   5. HELPER — SHOW LOADING
-   ========================================================= */
-
-function showLoading(message = "Setting up your account...") {
-
-    if (loadingText) {
-        loadingText.textContent = message;
-    }
-
-    if (loadingOverlay) {
-        loadingOverlay.classList.add("active");
-        loadingOverlay.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-    }
-}
-
-
-/* =========================================================
-   6. HELPER — HIDE LOADING
-   ========================================================= */
-
-function hideLoading() {
-
-    if (loadingOverlay) {
-        loadingOverlay.classList.remove("active");
-        loadingOverlay.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-    }
-}
-
-
-/* =========================================================
-   7. DISABLE ROLE BUTTONS
-   ========================================================= */
-
-function disableRoleButtons() {
-
-    if (freelancerCard) {
-        freelancerCard.disabled = true;
-        freelancerCard.setAttribute(
-            "aria-disabled",
-            "true"
-        );
-    }
-
-    if (clientCard) {
-        clientCard.disabled = true;
-        clientCard.setAttribute(
-            "aria-disabled",
-            "true"
-        );
-    }
-}
-
-
-/* =========================================================
-   8. ENABLE ROLE BUTTONS
-   ========================================================= */
-
-function enableRoleButtons() {
-
-    if (freelancerCard) {
-        freelancerCard.disabled = false;
-        freelancerCard.removeAttribute(
-            "aria-disabled"
-        );
-    }
-
-    if (clientCard) {
-        clientCard.disabled = false;
-        clientCard.removeAttribute(
-            "aria-disabled"
-        );
-    }
-}
-
-
-/* =========================================================
-   9. GET CURRENT USER
-   ========================================================= */
-
-async function getCurrentUser() {
+  try {
 
     const {
-        data,
-        error
+      data: { user },
+      error
     } = await supabaseClient.auth.getUser();
 
+
     if (error) {
-        throw error;
-    }
 
-    return data.user;
-}
+      console.error(
+        "Authentication check failed:",
+        error
+      );
 
+      redirectToLogin();
 
-/* =========================================================
-   10. CHECK LOGIN
-   ========================================================= */
-
-async function checkAuthentication() {
-
-    try {
-
-        const user = await getCurrentUser();
-
-        /*
-         * If there is no authenticated user,
-         * this person should not be on the role page.
-         */
-
-        if (!user) {
-
-            window.location.replace(
-                "index.html"
-            );
-
-            return null;
-        }
-
-        return user;
-
-    } catch (error) {
-
-        console.error(
-            "Authentication check failed:",
-            error
-        );
-
-        showStatus(
-            "We could not verify your account. Please log in again.",
-            true
-        );
-
-        setTimeout(() => {
-
-            window.location.replace(
-                "index.html"
-            );
-
-        }, 1800);
-
-        return null;
-    }
-}
-
-
-/* =========================================================
-   11. SAVE USER ROLE
-   ========================================================= */
-
-async function saveUserRole(role) {
-
-    clearStatus();
-
-    /*
-     * Only these two role values are accepted.
-     */
-
-    if (
-        role !== "freelancer" &&
-        role !== "client"
-    ) {
-
-        showStatus(
-            "Please choose a valid account type.",
-            true
-        );
-
-        return;
+      return;
     }
 
 
-    disableRoleButtons();
+    if (!user) {
 
-    showLoading(
-        role === "freelancer"
-            ? "Setting up your freelancer account..."
-            : "Setting up your client account..."
+      console.log(
+        "No authenticated user found."
+      );
+
+      redirectToLogin();
+
+      return;
+    }
+
+
+    console.log(
+      "Authenticated user:",
+      user.email
     );
 
 
-    try {
-
-        /*
-         * Get the authenticated user again.
-         */
-
-        const user = await getCurrentUser();
-
-        if (!user) {
-
-            window.location.replace(
-                "index.html"
-            );
-
-            return;
-        }
+    // Check whether this user already has a role.
+    await checkExistingProfile(user);
 
 
-        /*
-         * IMPORTANT:
-         *
-         * This expects a Supabase table called
-         * "profiles" with a column called
-         * "role".
-         *
-         * We are using the authenticated user's
-         * Supabase UUID as the profile ID.
-         */
+  } catch (error) {
 
-        const profileData = {
-            id: user.id,
-            role: role
-        };
+    console.error(
+      "Unexpected authentication error:",
+      error
+    );
 
+    redirectToLogin();
 
-        /*
-         * Save the role.
-         *
-         * "upsert" means:
-         * - create the profile if it doesn't exist
-         * - update it if it already exists
-         */
+  }
 
-        const {
-            error
-        } = await supabaseClient
-            .from("profiles")
-            .upsert(
-                profileData,
-                {
-                    onConflict: "id"
-                }
-            );
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        /*
-         * Role saved successfully.
-         *
-         * We are not sending the user to
-         * home.html yet.
-         *
-         * First we will build the correct
-         * profile/setup page.
-         */
-
-        showLoading(
-            "Account type saved. Preparing your profile..."
-        );
-
-
-        /*
-         * Temporary next destination.
-         *
-         * We will replace this with the real
-         * onboarding/profile page when that
-         * page is created.
-         */
-
-        setTimeout(() => {
-
-            window.location.href =
-                "home.html";
-
-        }, 700);
-
-
-    } catch (error) {
-
-        console.error(
-            "Role save error:",
-            error
-        );
-
-        hideLoading();
-
-        enableRoleButtons();
-
-        showStatus(
-            "We couldn't save your account type. Please try again.",
-            true
-        );
-    }
 }
 
 
-/* =========================================================
-   12. FREELANCER CLICK
-   ========================================================= */
+// ============================================================
+// CHECK EXISTING PROFILE
+// ============================================================
+
+async function checkExistingProfile(user) {
+
+  try {
+
+    const {
+      data: profile,
+      error
+    } = await supabaseClient
+      .from("profiles")
+      .select("id, role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+
+    if (error) {
+
+      console.error(
+        "Profile check failed:",
+        error
+      );
+
+      return;
+    }
+
+
+    // If the user already selected a role,
+    // don't ask them again.
+    if (profile && profile.role) {
+
+      console.log(
+        "Existing role:",
+        profile.role
+      );
+
+      showStatus(
+        "Your account is already set up."
+      );
+
+      goToHome();
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Profile check error:",
+      error
+    );
+
+  }
+
+}
+
+
+// ============================================================
+// FREELANCER
+// ============================================================
 
 if (freelancerCard) {
 
-    freelancerCard.addEventListener(
-        "click",
-        () => {
+  freelancerCard.addEventListener(
+    "click",
+    async () => {
 
-            saveUserRole(
-                "freelancer"
-            );
+      await selectRole("freelancer");
 
-        }
-    );
+    }
+  );
+
 }
 
 
-/* =========================================================
-   13. CLIENT CLICK
-   ========================================================= */
+// ============================================================
+// CLIENT
+// ============================================================
 
 if (clientCard) {
 
-    clientCard.addEventListener(
-        "click",
-        () => {
+  clientCard.addEventListener(
+    "click",
+    async () => {
 
-            saveUserRole(
-                "client"
-            );
+      await selectRole("client");
 
-        }
-    );
+    }
+  );
+
 }
 
 
-/* =========================================================
-   14. START PAGE
-   ========================================================= */
+// ============================================================
+// SAVE ROLE
+// ============================================================
 
-async function initializeRolePage() {
+async function selectRole(role) {
 
-    /*
-     * Don't show an error immediately.
-     * First check the Supabase session.
-     */
+  if (
+    role !== "freelancer" &&
+    role !== "client"
+  ) {
 
-    clearStatus();
+    return;
 
-    const user =
-        await checkAuthentication();
+  }
 
-    /*
-     * If there is no user,
-     * checkAuthentication() already
-     * redirects to index.html.
-     */
 
-    if (!user) {
-        return;
+  try {
+
+    // Disable both choices while saving.
+    setCardsDisabled(true);
+
+
+    showLoading(
+      role === "freelancer"
+        ? "Setting up your freelancer account..."
+        : "Setting up your client account..."
+    );
+
+
+    // Get currently authenticated user.
+    const {
+      data: { user },
+      error: userError
+    } = await supabaseClient.auth.getUser();
+
+
+    if (userError || !user) {
+
+      throw new Error(
+        "Your login session could not be found."
+      );
+
     }
 
+
+    // --------------------------------------------------------
+    // Get Google account information
+    // --------------------------------------------------------
+
+    const metadata =
+      user.user_metadata || {};
+
+
+    const displayName =
+      metadata.full_name ||
+      metadata.name ||
+      metadata.display_name ||
+      "";
+
+
+    const avatarUrl =
+      metadata.avatar_url ||
+      metadata.picture ||
+      "";
+
+
+    // --------------------------------------------------------
+    // Prepare profile
+    // --------------------------------------------------------
+
+    const profileData = {
+
+      id: user.id,
+
+      role: role
+
+    };
+
+
+    if (displayName) {
+
+      profileData.display_name =
+        displayName;
+
+    }
+
+
+    if (avatarUrl) {
+
+      profileData.avatar_url =
+        avatarUrl;
+
+    }
+
+
+    // --------------------------------------------------------
+    // Save profile
+    // --------------------------------------------------------
+
+    const {
+      error: saveError
+    } = await supabaseClient
+      .from("profiles")
+      .upsert(
+        profileData,
+        {
+          onConflict: "id"
+        }
+      );
+
+
+    if (saveError) {
+
+      throw saveError;
+
+    }
+
+
     console.log(
-        "GS Platform authenticated user:",
-        user.id
+      "Role successfully saved:",
+      role
     );
+
+
+    showLoading(
+      "Account setup complete..."
+    );
+
+
+    // Give Supabase a moment to finish.
+    setTimeout(() => {
+
+      goToHome();
+
+    }, 700);
+
+
+  } catch (error) {
+
+    console.error(
+      "Role setup error:",
+      error
+    );
+
+
+    hideLoading();
+
+
+    showStatus(
+      "Something went wrong. Please try again."
+    );
+
+
+    setCardsDisabled(false);
+
+  }
+
 }
 
 
-/* =========================================================
-   15. RUN
-   ========================================================= */
+// ============================================================
+// GO TO HOME
+// ============================================================
 
-initializeRolePage();
+function goToHome() {
+
+  window.location.href = "home.html";
+
+}
+
+
+// ============================================================
+// GO TO LOGIN
+// ============================================================
+
+function redirectToLogin() {
+
+  window.location.href =
+    "index.html";
+
+}
+
+
+// ============================================================
+// STATUS MESSAGE
+// ============================================================
+
+function showStatus(message) {
+
+  if (!statusMessage) {
+
+    return;
+
+  }
+
+
+  statusMessage.textContent =
+    message;
+
+}
+
+
+// ============================================================
+// LOADING
+// ============================================================
+
+function showLoading(message) {
+
+  if (loadingText) {
+
+    loadingText.textContent =
+      message;
+
+  }
+
+
+  if (loadingOverlay) {
+
+    loadingOverlay.style.display =
+      "flex";
+
+  }
+
+}
+
+
+function hideLoading() {
+
+  if (loadingOverlay) {
+
+    loadingOverlay.style.display =
+      "none";
+
+  }
+
+}
+
+
+// ============================================================
+// DISABLE ROLE CARDS
+// ============================================================
+
+function setCardsDisabled(disabled) {
+
+  if (freelancerCard) {
+
+    freelancerCard.style.pointerEvents =
+      disabled ? "none" : "auto";
+
+    freelancerCard.style.opacity =
+      disabled ? "0.6" : "1";
+
+  }
+
+
+  if (clientCard) {
+
+    clientCard.style.pointerEvents =
+      disabled ? "none" : "auto";
+
+    clientCard.style.opacity =
+      disabled ? "0.6" : "1";
+
+  }
+
+}
