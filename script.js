@@ -1,110 +1,87 @@
-// ============================================
-// GS PLATFORM — AUTHENTICATION CONTROLLER
-// ============================================
+// ==========================================
+// GS PLATFORM — MAIN LOGIN SCRIPT
+// ==========================================
 
 const SUPABASE_URL = "https://xykhrjrsfrcxdmvtwsww.supabase.co";
 const SUPABASE_KEY = "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
 
-let supabaseClient;
+let supabaseClient = null;
 
-// --------------------------------------------
-// Load Supabase if the HTML hasn't loaded it
-// --------------------------------------------
-function loadSupabase() {
-    return new Promise((resolve, reject) => {
-        if (window.supabase) {
-            resolve();
-            return;
-        }
+// ------------------------------------------
+// Start Supabase
+// ------------------------------------------
+function initializeSupabase() {
+    if (!window.supabase) {
+        console.error("Supabase library was not loaded.");
+        return false;
+    }
 
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
+    supabaseClient = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+    return true;
 }
 
-// --------------------------------------------
-// Initialize
-// --------------------------------------------
-async function initializeAuth() {
+// ------------------------------------------
+// Google Login
+// ------------------------------------------
+async function loginWithGoogle() {
+    if (!supabaseClient) {
+        alert("Login system is not ready. Please refresh the page.");
+        return;
+    }
+
     try {
-        await loadSupabase();
+        const redirectUrl =
+            window.location.origin +
+            window.location.pathname.replace("index.html", "") +
+            "role.html";
 
-        supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: redirectUrl
+            }
+        });
 
-        // Check whether the user has returned from Google
-        const {
-            data: { session }
-        } = await supabaseClient.auth.getSession();
-
-        if (session) {
-            goToRolePage();
-            return;
+        if (error) {
+            console.error("Google login error:", error);
+            alert("Google login could not start. Please try again.");
         }
 
-        setupGoogleLogin();
-
     } catch (error) {
-        console.error("GS Auth initialization error:", error);
+        console.error("Login error:", error);
+        alert("Something went wrong. Please try again.");
     }
 }
 
-// --------------------------------------------
-// Google Login
-// --------------------------------------------
-function setupGoogleLogin() {
+// ------------------------------------------
+// Find Google button
+// ------------------------------------------
+function connectGoogleButton() {
 
-    const allButtons = document.querySelectorAll("button, a");
+    const elements = document.querySelectorAll(
+        "button, a, [role='button']"
+    );
 
-    allButtons.forEach((button) => {
+    elements.forEach((element) => {
 
-        const text = (button.textContent || "").toLowerCase();
+        const text = (element.textContent || "")
+            .trim()
+            .toLowerCase();
 
         if (
-            text.includes("google") ||
             text.includes("continue with google") ||
-            text.includes("sign in with google")
+            text.includes("sign in with google") ||
+            text.includes("login with google") ||
+            text === "google"
         ) {
 
-            button.addEventListener("click", async (event) => {
-
+            element.addEventListener("click", function(event) {
                 event.preventDefault();
-
-                try {
-
-                    button.disabled = true;
-
-                    const redirectUrl =
-                        window.location.origin +
-                        window.location.pathname
-                            .replace("index.html", "") +
-                        "role.html";
-
-                    const { error } =
-                        await supabaseClient.auth.signInWithOAuth({
-                            provider: "google",
-                            options: {
-                                redirectTo: redirectUrl
-                            }
-                        });
-
-                    if (error) {
-                        console.error("Google login error:", error);
-                        button.disabled = false;
-                    }
-
-                } catch (error) {
-
-                    console.error("Google login error:", error);
-                    button.disabled = false;
-
-                }
-
+                loginWithGoogle();
             });
 
         }
@@ -112,53 +89,31 @@ function setupGoogleLogin() {
     });
 }
 
-// --------------------------------------------
-// Send authenticated user to role selection
-// --------------------------------------------
-function goToRolePage() {
+// ------------------------------------------
+// Remove broken image placeholders
+// from the main login page
+// ------------------------------------------
+function removeBrokenImages() {
 
-    const roleUrl =
-        window.location.origin +
-        window.location.pathname
-            .replace("index.html", "") +
-        "role.html";
+    document.querySelectorAll("img").forEach((image) => {
 
-    window.location.href = roleUrl;
-}
-
-// --------------------------------------------
-// Watch authentication state
-// --------------------------------------------
-async function watchAuthState() {
-
-    if (!supabaseClient) return;
-
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-
-        if (
-            session &&
-            (
-                event === "SIGNED_IN" ||
-                event === "INITIAL_SESSION"
-            )
-        ) {
-
-            goToRolePage();
-
-        }
+        image.addEventListener("error", function() {
+            this.style.display = "none";
+        });
 
     });
+
 }
 
-// --------------------------------------------
-// Start GS Platform authentication
-// --------------------------------------------
-(async function () {
+// ------------------------------------------
+// Start
+// ------------------------------------------
+document.addEventListener("DOMContentLoaded", function() {
 
-    await initializeAuth();
+    initializeSupabase();
 
-    if (supabaseClient) {
-        await watchAuthState();
-    }
+    connectGoogleButton();
 
-})();
+    removeBrokenImages();
+
+});
