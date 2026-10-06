@@ -1,128 +1,292 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8"><meta
-name="viewport"
-content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-«»
+  <title>GS Platform — Freelance. Connect. Create.</title>
 
-<meta
-name="description"
-content="GS Platform — skills, work and global opportunities."
+  <link rel="stylesheet" href="style.css">
+</head>
 
-«»
+<body>
 
-  <title>GS Platform</title>  <link rel="stylesheet" href="style.css">
-</head><body>  <!-- =========================
-       APP
-  ========================== -->  <main class="app-shell"><!-- Ambient background -->
-<div class="ambient ambient-one"></div>
-<div class="ambient ambient-two"></div>
-<div class="ambient ambient-three"></div>
+  <!-- =========================
+       HEADER
+  ========================== -->
+  <header class="site-header">
+    <div class="header-inner">
 
+      <a href="index.html" class="brand">
+        <img src="GS_LOGO.png" alt="GS Platform">
+      </a>
 
-<!-- =========================
-     TOP NAVIGATION
-========================== -->
+      <nav class="main-nav">
+        <a href="#home">Home</a>
+        <a href="#marketplace">Marketplace</a>
+        <a href="#services">Services</a>
+        <a href="#rank">Trust & Rank</a>
+      </nav>
 
-<header class="top-bar">
+      <div class="header-actions">
+        <button id="loginButton" class="btn btn-outline">
+          Login
+        </button>
 
-  <a href="#" class="brand" aria-label="GS Platform">
-
-    <div class="logo-frame">
-      <img
-        src="GS_LOGO.png"
-        alt="GS"
-        class="gs-logo"
-      >
-    </div>
-
-    <div class="brand-name">
-      <span>GS</span>
-      <span>PLATFORM</span>
-    </div>
-
-  </a>
-
-  <button
-    class="top-login"
-    id="topLoginButton"
-    type="button"
-  >
-    Log in
-  </button>
-
-</header>
-
-
-<!-- =========================
-     HERO
-========================== -->
-
-<section class="hero" id="heroSection">
-
-  <div class="hero-content">
-
-    <div class="eyebrow">
-      <span class="status-dot"></span>
-      A new way to work
-    </div>
-
-    <h1>
-      Your skills.
-      <br>
-      <span id="rotatingWord">Your opportunity.</span>
-    </h1>
-
-    <p class="hero-description">
-      Connect skills with real opportunities.
-      Discover work, build your reputation,
-      and grow on a platform designed for the
-      future of freelancing.
-    </p>
-
-    <div class="rotating-message" aria-live="polite">
-
-      <span id="rotatingMessage">
-        Find work that matches what you do best.
-      </span>
+        <button id="getStartedButton" class="btn btn-gold">
+          Get Started
+        </button>
+      </div>
 
     </div>
+  </header>
 
 
-    <!-- Primary actions -->
+  <!-- =========================
+       HERO
+  ========================== -->
+  <main>
 
-    <div class="hero-actions">
+    <section id="home" class="hero-section">
+
+      <div class="hero-content">
+
+        <p class="hero-label">GS PLATFORM</p>
+
+        <h1>
+          Freelance.
+          <span>Connect.</span>
+          Create.
+        </h1>
+
+        <p class="hero-description">
+          A professional space where clients and freelancers connect,
+          communicate and build real projects together.
+        </p>
+
+        <div class="hero-actions">
+
+          <button id="heroGetStarted" class="btn btn-gold">
+            Get Started
+          </button>
+
+          <button id="heroLogin" class="btn btn-outline">
+            Login
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="hero-visual">
+        <div class="hero-card">
+          <span class="hero-card-label">GS PLATFORM</span>
+          <h2>Work. Connect. Grow.</h2>
+          <p>
+            Discover opportunities and professional talent.
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         MARKETPLACE
+    ========================== -->
+    <section id="marketplace" class="content-section">
+
+      <div class="section-heading">
+        <p class="section-label">MARKETPLACE</p>
+
+        <h2>
+          Discover professional talent.
+        </h2>
+
+        <p>
+          Explore freelancers, services and professional work
+          through the GS Platform marketplace.
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         SERVICES
+    ========================== -->
+    <section id="services" class="content-section">
+
+      <div class="section-heading">
+        <p class="section-label">SERVICES</p>
+
+        <h2>
+          Find the right professional.
+        </h2>
+
+        <p>
+          Connect with people who have the skills and experience
+          your project needs.
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         TRUST & RANK
+    ========================== -->
+    <section id="rank" class="content-section">
+
+      <div class="section-heading">
+        <p class="section-label">TRUST & RANK</p>
+
+        <h2>
+          Reputation matters.
+        </h2>
+
+        <p>
+          GS Platform is designed to recognize reliable,
+          professional work and build trust over time.
+        </p>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       AUTHENTICATION MODAL
+  ========================== -->
+  <div id="authOverlay" class="auth-overlay">
+
+    <div class="auth-modal">
 
       <button
-        class="primary-button"
-        id="getStartedButton"
-        type="button"
+        id="closeAuth"
+        class="auth-close"
+        aria-label="Close"
       >
-        <span>Get started</span>
-        <span class="button-arrow">→</span>
+        &times;
       </button>
+
+      <div class="auth-header">
+
+        <img
+          src="GS_LOGO.png"
+          alt="GS Platform"
+          class="auth-logo"
+        >
+
+        <h2 id="authTitle">Welcome to GS Platform</h2>
+
+        <p id="authSubtitle">
+          Login or create your account.
+        </p>
+
+      </div>
+
+
+      <!-- Google -->
+      <button id="googleButton" class="google-auth-button">
+        Continue with Google
+      </button>
+
+
+      <div class="auth-divider">
+        <span>OR</span>
+      </div>
+
+
+      <!-- Email authentication -->
+      <form id="emailAuthForm">
+
+        <div class="form-group">
+
+          <label for="email">
+            Email
+          </label>
+
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          >
+
+        </div>
+
+
+        <div class="form-group password-group">
+
+          <label for="password">
+            Password
+          </label>
+
+          <div class="password-wrapper">
+
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            >
+
+            <button
+              type="button"
+              id="togglePassword"
+              class="password-toggle"
+            >
+              Show
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <button
+          type="submit"
+          id="emailSubmitButton"
+          class="btn btn-gold auth-submit"
+        >
+          Login
+        </button>
+
+      </form>
+
 
       <button
-        class="secondary-button"
-        id="heroLoginButton"
-        type="button"
+        id="forgotPasswordButton"
+        class="forgot-password"
       >
-        Log in
+        Forgot password?
       </button>
 
-    </div>
+
+      <p
+        id="authMessage"
+        class="auth-message"
+      ></p>
 
 
-    <!-- Small trust line -->
+      <div class="auth-switch">
 
-    <div class="trust-line">
+        <span id="authSwitchText">
+          Don't have an account?
+        </span>
 
-      <span>Real people</span>
-      <span class="trust-divider">•</span>
-      <span>Real opportunities</span>
-      <span class="trust-divider">•</span>
-      <span>Built to grow</span>
+        <button
+          type="button"
+          id="authSwitchButton"
+        >
+          Sign up
+        </button>
+
+      </div>
 
     </div>
 
@@ -130,459 +294,54 @@ content="GS Platform — skills, work and global opportunities."
 
 
   <!-- =========================
-       PLATFORM PREVIEW
+       FOOTER
   ========================== -->
+  <footer class="site-footer">
 
-  <div class="platform-preview">
+    <div class="footer-inner">
 
-    <div class="preview-glow"></div>
+      <div class="footer-brand">
 
-    <div class="preview-card">
+        <img
+          src="GS_LOGO.png"
+          alt="GS Platform"
+        >
 
-      <div class="preview-top">
-
-        <div>
-
-          <span class="preview-label">
-            GS PLATFORM
-          </span>
-
-          <h2>
-            Work that moves
-            <span>you forward.</span>
-          </h2>
-
-        </div>
-
-        <div class="preview-icon">
-          GS
-        </div>
+        <p>
+          Freelance. Connect. Create.
+        </p>
 
       </div>
 
 
-      <div class="preview-stats">
+      <div class="footer-links">
 
-        <div class="preview-stat">
-          <strong>Skills</strong>
-          <span>Show what you can do</span>
-        </div>
-
-        <div class="preview-stat">
-          <strong>Work</strong>
-          <span>Find meaningful opportunities</span>
-        </div>
-
-        <div class="preview-stat">
-          <strong>Reputation</strong>
-          <span>Grow through your work</span>
-        </div>
-
-      </div>
-
-
-      <div class="preview-bottom">
-
-        <span>
-          The future of independent work
-        </span>
-
-        <span class="preview-arrow">
-          ↗
-        </span>
+        <a href="#home">Home</a>
+        <a href="#marketplace">Marketplace</a>
+        <a href="#services">Services</a>
+        <a href="#rank">Trust & Rank</a>
 
       </div>
 
     </div>
 
-  </div>
 
-</section>
+    <div class="footer-bottom">
 
-
-<!-- =====================================================
-     GS PLATFORM ROLE SELECTION
-     This stays inside index.html.
-====================================================== -->
-
-<section
-  class="role-selection-screen"
-  id="roleSelectionScreen"
-  aria-hidden="true"
->
-
-  <div class="role-selection-container">
-
-
-    <!-- Brand -->
-
-    <div class="role-brand">
-
-      <div class="role-brand-mark">
-        GS
-      </div>
-
-      <span>
-        GS PLATFORM
-      </span>
-
-    </div>
-
-
-    <!-- Step -->
-
-    <div class="role-step">
-      STEP 1 OF 2
-    </div>
-
-
-    <!-- Heading -->
-
-    <h1>
-      Welcome to GS Platform
-    </h1>
-
-    <p class="role-subtitle">
-      How would you like to use GS Platform?
-    </p>
-
-
-    <!-- Role options -->
-
-    <div class="role-options">
-
-
-      <!-- Freelancer -->
-
-      <button
-        type="button"
-        class="role-card"
-        id="freelancerRoleButton"
-        data-role="freelancer"
-      >
-
-        <div class="role-icon">
-          ✦
-        </div>
-
-        <div class="role-card-content">
-
-          <span class="role-card-label">
-            WORK & EARN
-          </span>
-
-          <h2>
-            I'm a Freelancer
-          </h2>
-
-          <p>
-            Offer your skills, showcase your work,
-            find clients, and get hired.
-          </p>
-
-        </div>
-
-        <span class="role-arrow">
-          →
-        </span>
-
-      </button>
-
-
-      <!-- Client -->
-
-      <button
-        type="button"
-        class="role-card"
-        id="clientRoleButton"
-        data-role="client"
-      >
-
-        <div class="role-icon">
-          ◆
-        </div>
-
-        <div class="role-card-content">
-
-          <span class="role-card-label">
-            HIRE & BUY
-          </span>
-
-          <h2>
-            I'm a Client
-          </h2>
-
-          <p>
-            Find skilled professionals,
-            discover services, and hire the right person.
-          </p>
-
-        </div>
-
-        <span class="role-arrow">
-          →
-        </span>
-
-      </button>
-
-
-    </div>
-
-
-    <!-- Status -->
-
-    <div
-      class="role-status"
-      id="roleStatusMessage"
-      role="status"
-      aria-live="polite"
-    ></div>
-
-
-    <!-- Back -->
-
-    <button
-      type="button"
-      class="role-back-button"
-      id="roleBackButton"
-    >
-      ← Back
-    </button>
-
-  </div>
-
-
-  <!-- Loading -->
-
-  <div
-    class="role-loading"
-    id="roleLoading"
-    aria-hidden="true"
-  >
-
-    <div class="role-loader"></div>
-
-    <p>
-      Setting up your GS Platform account...
-    </p>
-
-  </div>
-
-</section>
-
-
-<!-- =========================
-     AUTH MODAL
-========================== -->
-
-<div
-  class="auth-overlay"
-  id="authOverlay"
-  aria-hidden="true"
->
-
-  <section
-    class="auth-panel"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="authTitle"
-  >
-
-    <button
-      class="close-auth"
-      id="closeAuthButton"
-      type="button"
-      aria-label="Close"
-    >
-      ×
-    </button>
-
-
-    <div class="auth-header">
-
-      <div class="auth-logo">
-        GS
-      </div>
-
-      <h2 id="authTitle">
-        Welcome to GS
-      </h2>
-
-      <p id="authSubtitle">
-        Sign in or create your GS Platform account.
+      <p>
+        &copy; 2026 GS Platform. All rights reserved.
       </p>
 
     </div>
 
-
-    <!-- Google -->
-
-    <button
-      class="google-button"
-      id="googleButton"
-      type="button"
-    >
-
-      <span class="google-icon">
-        G
-      </span>
-
-      <span>
-        Continue with Google
-      </span>
-
-    </button>
+  </footer>
 
 
-    <div class="auth-divider">
-      <span>or continue with email</span>
-    </div>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <!-- Main JavaScript -->
+  <script src="script.js"></script>
 
-    <!-- Email -->
-
-    <form id="emailAuthForm">
-
-      <div class="input-group">
-
-        <label for="email">
-          Email
-        </label>
-
-        <input
-          type="email"
-          id="email"
-          name="email"
-          placeholder="you@example.com"
-          autocomplete="email"
-          required
-        >
-
-      </div>
-
-
-      <div class="input-group">
-
-        <div class="password-label">
-
-          <label for="password">
-            Password
-          </label>
-
-          <button
-            type="button"
-            id="forgotPasswordButton"
-            class="forgot-button"
-          >
-            Forgot password?
-          </button>
-
-        </div>
-
-        <div class="password-input">
-
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            required
-          >
-
-          <button
-            type="button"
-            id="togglePassword"
-            class="password-toggle"
-            aria-label="Show password"
-          >
-            Show
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <button
-        class="email-submit"
-        id="emailSubmitButton"
-        type="submit"
-      >
-        Continue
-      </button>
-
-    </form>
-
-
-    <div
-      class="auth-message"
-      id="authMessage"
-      role="status"
-    ></div>
-
-
-    <p class="auth-switch">
-
-      <span id="authSwitchText">
-        Don't have an account?
-      </span>
-
-      <button
-        type="button"
-        id="authSwitchButton"
-      >
-        Create account
-      </button>
-
-    </p>
-
-
-    <p class="auth-legal">
-
-      By continuing, you agree to the GS Platform
-      Terms and Privacy Policy.
-
-    </p>
-
-  </section>
-
-</div>
-
-
-<!-- =========================
-     FOOTER
-========================== -->
-
-<footer class="site-footer">
-
-  <span>
-    © <span id="currentYear"></span> GS Platform
-  </span>
-
-  <div class="footer-links">
-
-    <a href="#">
-      About
-    </a>
-
-    <a href="#">
-      Terms
-    </a>
-
-    <a href="#">
-      Privacy
-    </a>
-
-  </div>
-
-</footer>
-
-  </main>  <!-- =========================
-       SUPABASE
-  ========================== -->  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  ></script>  <!-- =========================
-       GS PLATFORM JAVASCRIPT
-  ========================== -->  <script src="script.js"></script></body>
+</body>
 </html>
