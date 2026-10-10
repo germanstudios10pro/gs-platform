@@ -1,1 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Dashboard | GS Platform</title>
+
+  <meta
+    name="description"
+    content="Your personal workspace on GS Platform."
+  >
+
+  <meta name="theme-color" content="#0b0b0b">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    :root {
+      --gs-bg: #0b0b0b;
+      --gs-panel: #141414;
+      --gs-panel-light: #1b1b1b;
+      --gs-gold: #d8b45a;
+      --gs-gold-light: #f1d58b;
+      --gs-text: #f5f3ed;
+      --gs-muted: #a7a7a7;
+      --gs-border: rgba(216, 180, 90, 0.2);
+      --gs-danger: #ff8b8b;
+      --gs-success: #a8dfb4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--gs-bg);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at 85% 0%,
+          rgba(216, 180, 90, 0.07),
+          transparent 30rem
+        ),
+        var(--gs-bg);
+      color: var(--gs-text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--gs-gold-light);
+      outline-offset: 4px;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      min-height: 76px;
+      padding: 15px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: rgba(11, 11, 11, 0.96);
+      border-bottom: 1px solid var(--gs-border);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-mark {
+      width: 39px;
+      height: 39px;
+      display: grid;
+      place-items: center;
+      color: #0b0b0b;
+      background: linear-gradient(
+        135deg,
+        var(--gs-gold-light),
+        var(--gs-gold)
+      );
+      border-radius: 11px;
+      font-weight: 900;
+    }
+
+    .brand span:last-child {
+      color: var(--gs-gold-light);
+    }
+
+    .account-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .account-avatar {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--gs-border);
+      border-radius: 50%;
+      background: var(--gs-panel-light);
+      color: var(--gs-gold-light);
+      font-weight: 800;
+    }
+
+    .account-details {
+      min-width: 0;
+    }
+
+    .account-name {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .account-email {
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--gs-muted);
+      font-size: 11px;
+    }
+
+    .page-layout {
+      width: min(1440px, 100%);
+      min-height: calc(100vh - 76px);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 240px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      padding: 30px 18px;
+      border-right: 1px solid var(--gs-border);
+    }
+
+    .nav-label {
+      padding: 0 12px;
+      margin: 0 0 12px;
+      color: var(--gs-muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter
