@@ -1,1 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <title>Find Professionals | GS Platform</title>
+  <meta
+    name="description"
+    content="Search freelancer and client profiles on GS Platform."
+  >
+  <meta name="theme-color" content="#0b0b0b">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --panel: #141414;
+      --panel-light: #1c1c1c;
+      --gold: #d8b45a;
+      --gold-light: #f1d58b;
+      --text: #f5f3ed;
+      --muted: #a7a7a7;
+      --border: rgba(216, 180, 90, 0.22);
+      --error: #ff9999;
+      --success: #a8dfb4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(
+          circle at 85% 0%,
+          rgba(216, 180, 90, 0.07),
+          transparent 30rem
+        ),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 3px;
+    }
+
+    .topbar {
+      min-height: 72px;
+      padding: 14px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11, 11, 11, 0.96);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #111;
+      font-weight: 900;
+    }
+
+    .brand-name {
+      color: var(--gold-light);
+    }
+
+    .top-link {
+      color: var(--gold-light);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    main {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      padding: 42px 24px 60px;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 45px);
+      line-height: 1.2;
+      letter-spacing: -1px;
+    }
+
+    .intro {
+      max-width: 650px;
+      margin: 15px 0 30px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .search-panel {
+      padding: 23px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel);
+    }
+
+    .search-panel h2 {
+      margin: 0 0 17px;
+      font-size: 17px;
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 175px auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      min-width: 0;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: #dedede;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 47px;
+      padding: 11px 12px;
+      border: 1px solid #373737;
+      border-radius: 9px;
+      background: #101010;
+      color: var(--text);
+    }
+
+    .field input::placeholder {
+      color: #777;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--gold);
+    }
+
+    .button {
+      min-height: 47px;
+      padding: 11px 18px;
+      border: 1px solid var(--gold);
+      border-radius: 9px;
+      background: var(--gold);
+      color: #111;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .button:hover {
+      background: var(--gold-light);
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .results-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 35px 0 15px;
+    }
+
+    .results-heading h2 {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .result-count {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .message {
+      margin-top: 18px;
+      padding: 15px;
+      border: 1px solid #353535;
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .message.error {
+      color: var(--error);
+      border-color: rgba(255, 153, 153, 0.35);
+    }
+
+    .message.success {
+      color: var(--success);
+      border-color: rgba(168, 223, 180, 0.35);
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+    }
+
+    .profile-card {
+      min-width: 0;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 13px;
+      background: var(--panel);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: var(--panel-light);
+      color: var(--gold-light);
+      font-weight: 800;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-heading {
+      min-width: 0;
+    }
+
+    .profile-heading h3 {
+      margin: 0;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+    }
+
+    .username {
+      color: var(--muted);
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .role {
+      display: inline-block;
+      margin: 0 0 12px;
+      padding: 5px 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--gold-light);
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .bio {
+      margin: 0 0 13px;
+      color: #c5c5c5;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .skills-label {
+      margin: 0 0 7px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .skills {
+      margin: 0;
+      color: var(--text);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .empty-state {
+      padding: 35px 20px;
+      border: 1px dashed #393939;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.015);
+      text-align: center;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 7px;
+      font-size: 16px;
+    }
+
+    .empty-state p {
+      max-width: 450px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        padding: 30px 17px 45px;
+      }
+
+      .search-form {
+        grid-template-columns: 1fr;
+      }
+
+      .search-form .button {
+        width: 100%;
+      }
+
+      .results {
+        grid-template-columns: 1fr;
+      }
+
+      .search-panel {
+        padding: 17px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="brand" href="app.html" aria-label="GS Platform dashboard">
+      <span class="brand-mark">GS</span>
+      <span>GS <span class="brand-name">Platform</span></span>
+    </a>
+
+    <a class="top-link" href="app.html">← Back to dashboard</a>
+  </header>
+
+  <main>
+    <section aria-labelledby="pageTitle">
+      <p class="eyebrow">Discover professionals</p>
+      <h1 id="pageTitle">Find your next connection.</h1>
+
+      <p class="intro">
+        Search member profiles by name, username, skills, or biography.
+        Results come from saved GS Platform profiles, not sample data.
+      </p>
+    </section>
+
+    <section class="search-panel" aria-labelledby="searchTitle">
+      <h2 id="searchTitle">Search member profiles</h2>
+
+      <form id="searchForm" class="search-form">
+        <div class="field">
+          <label for="searchTerm">What are you looking for?</label>
+          <input
+            id="searchTerm"
+            name="searchTerm"
+            type="search"
+            minlength="2"
+            maxlength="60"
+            placeholder="Try design, writing, or a username"
+            autocomplete="off"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="roleFilter">Member type</label>
+          <select id="roleFilter" name="roleFilter">
+            <option value="all">All members</option>
+            <option value="freelancer">Freelancers</option>
+            <option value="client">Clients</option>
+          </select>
+        </div>
+
+        <button id="searchButton" class="button" type="submit">
+          Search profiles
+        </button>
+      </form>
+    </section>
+
+    <section aria-labelledby="resultsTitle">
+      <div class="results-heading">
+        <h2 id="resultsTitle">Search results</h2>
+        <span id="resultCount" class="result-count">
+          Enter a search term to begin.
+        </span>
+      </div>
+
+      <div
+        id="statusMessage"
+        class="message"
+        role="status"
+        aria-live="polite"
+      >
+        Sign-in and profile access will be checked before searching.
+      </div>
+
+      <div id="results" class="results"></div>
+    </section>
+  </main>
+
+  <footer>
+    GS Platform · Professional work, built on trust.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const SUPABASE_URL =
+        "https://xykhrjrsfrcxdmvtwsww.supabase.co";
+
+      const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
+
+      const form = document.getElementById("searchForm");
+      const termInput = document.getElementById("searchTerm");
+      const roleFilter = document.getElementById("roleFilter");
+      const searchButton = document.getElementById("searchButton");
+      const statusMessage = document.getElementById("statusMessage");
+      const resultsContainer = document.getElementById("results");
+      const resultCount = document.getElementById("resultCount");
+
+      let supabaseClient = null;
+      let currentUserId = null;
+      let requestNumber = 0;
+
+      function setStatus(message, type = "") {
+        statusMessage.textContent = message;
+        statusMessage.className = "message";
+
+        if (type) {
+          statusMessage.classList.add(type);
+        }
+      }
+
+      function setLoading(isLoading) {
+        searchButton.disabled = isLoading;
+        searchButton.textContent = isLoading
+          ? "Searching..."
+          : "Search profiles";
+      }
+
+      function clearResults() {
+        resultsContainer.replaceChildren();
+        resultCount.textContent = "0 profiles found.";
+      }
+
+      function safeDisplayText(value, fallback = "") {
+        if (typeof value !== "string") {
+          return fallback;
+        }
+
+        return value.trim() || fallback;
+      }
+
+      function makeElement(tag, className, text) {
+        const element = document.createElement(tag);
+
+        if (className) {
+          element.className = className;
+        }
+
+        if (text !== undefined) {
+          element.textContent = text;
+        }
+
+        return element;
+      }
+
+      function createProfileCard(profile) {
+        const card = makeElement("article", "profile-card");
+        const header = makeElement("div", "profile-header");
+        const avatar = makeElement("div", "avatar");
+
+        const name = safeDisplayText(
+          profile.display_name,
+          safeDisplayText(profile.username, "GS Platform member")
+        );
+
+        const username = safeDisplayText(profile.username);
+
+        const imageUrl = safeDisplayText(profile.avatar_url);
+
+        if (imageUrl) {
+          try {
+            const parsedUrl = new URL(imageUrl);
+
+            if (
+              parsedUrl.protocol === "https:" ||
+              parsedUrl.protocol === "http:"
+            ) {
+              const image = document.createElement("img");
+
+              image.src = parsedUrl.href;
+              image.alt = "";
+              image.loading = "lazy";
+              image.referrerPolicy = "no-referrer";
+
+              image.addEventListener("error", () => {
+                avatar.replaceChildren(
+                  document.createTextNode(name.charAt(0).toUpperCase())
+                );
+              }, { once: true });
+
+              avatar.appendChild(image);
+            } else {
+              avatar.textContent = name.charAt(0).toUpperCase();
+            }
+          } catch {
+            avatar.textContent = name.charAt(0).toUpperCase();
+          }
+        } else {
+          avatar.textContent = name.charAt(0).toUpperCase();
+        }
+
+        const heading = makeElement("div", "profile-heading");
+        heading.appendChild(makeElement("h3", "", name));
+
+        if (username) {
+          heading.appendChild(
+            makeElement("div", "username", "@" + username)
+          );
+        }
+
+        header.append(avatar, heading);
+        card.appendChild(header);
+
+        const role = safeDisplayText(profile.role).toLowerCase();
+
+        if (role === "freelancer" || role === "client") {
+          const roleLabel = role === "freelancer"
+            ? "Freelancer"
+            : "Client";
+
+          card.appendChild(makeElement("span", "role", roleLabel));
+        }
+
+        const bio = safeDisplayText(profile.bio);
+
+        if (bio) {
+          card.appendChild(makeElement("p", "bio", bio));
+        }
+
+        const skills = safeDisplayText(profile.skills);
+
+        if (skills) {
+          card.appendChild(
+            makeElement("p", "skills-label", "Skills")
+          );
+
+          card.appendChild(
+            makeElement("p", "skills", skills)
+          );
+        }
+
+        if (!bio && !skills) {
+          card.appendChild(
+            makeElement(
+              "p",
+              "bio",
+              "This member has not added a biography or skills yet."
+            )
+          );
+        }
+
+        return card;
+      }
+
+      function showProfiles(profiles) {
+        resultsContainer.replaceChildren();
+
+        if (!profiles.length) {
+          resultCount.textContent = "0 profiles found.";
+
+          const empty = makeElement("div", "empty-state");
+          empty.appendChild(
+            makeElement("h3", "", "No matching profiles found")
+          );
+          empty.appendChild(
+            makeElement(
+              "p",
+              "",
+              "Try a different keyword or member type. " +
+              "Only matching saved profiles are shown."
+            )
+          );
+
+          resultsContainer.appendChild(empty);
+          return;
+        }
+
+        resultCount.textContent =
+          profiles.length === 25
+            ? "25 profiles shown. More matches may exist."
+            : profiles.length + " profile" +
+              (profiles.length === 1 ? "" : "s") + " found.";
+
+        const fragment = document.createDocumentFragment();
+
+        for (const profile of profiles) {
+          fragment.appendChild(createProfileCard(profile));
+        }
+
+        resultsContainer.appendChild(fragment);
+      }
+
+      function normalizeSearchTerm(value) {
+        /*
+         * Restrict characters that could alter the PostgREST filter
+         * expression. The actual query still uses Supabase's filter API.
+         */
+        return value
+          .normalize("NFKC")
+          .replace(/[^a-zA-Z0-9 _-]/g, " ")
+          .
