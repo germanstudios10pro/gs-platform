@@ -1,1 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0b0b">
 
+  <meta
+    name="description"
+    content="Choose your professional role on GS Platform."
+  >
+
+  <title>Choose Your Role | GS Platform</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --gs-bg: #0b0b0b;
+      --gs-panel: #141414;
+      --gs-gold: #d8b36a;
+      --gs-gold-light: #f0d69b;
+      --gs-text: #f5f3ed;
+      --gs-muted: #aaa79f;
+      --gs-border: rgba(216, 179, 106, 0.22);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          rgba(216, 179, 106, 0.09),
+          transparent 42%
+        ),
+        var(--gs-bg);
+      color: var(--gs-text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .role-header {
+      width: 100%;
+      padding: 22px 6%;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .role-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--gs-text);
+      text-decoration: none;
+    }
+
+    .role-brand-mark {
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      border: 1px solid var(--gs-gold);
+      color: var(--gs-gold);
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .role-brand-name {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .role-brand-name span {
+      display: block;
+      margin-top: 4px;
+      color: var(--gs-gold);
+      font-size: 9px;
+      letter-spacing: 3px;
+    }
+
+    .role-main {
+      width: min(1050px, 92%);
+      margin: 0 auto;
+      padding: 76px 0 90px;
+    }
+
+    .role-intro {
+      max-width: 690px;
+      margin: 0 auto 38px;
+      text-align: center;
+    }
+
+    .role-eyebrow {
+      color: var(--gs-gold);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .role-intro h1 {
+      margin: 18px 0;
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.12;
+      letter-spacing: -1.5px;
+    }
+
+    .role-gold {
+      color: var(--gs-gold);
+    }
+
+    .role-intro p {
+      max-width: 550px;
+      margin: 0 auto;
+      color: var(--gs-muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .role-user {
+      margin-top: 22px;
+      color: var(--gs-muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .role-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 32px;
+      background: linear-gradient(
+        145deg,
+        rgba(255, 255, 255, 0.035),
+        rgba(255, 255, 255, 0.012)
+      );
+      border: 1px solid var(--gs-border);
+      border-radius: 8px;
+      transition:
+        border-color 180ms ease,
+        transform 180ms ease,
+        background 180ms ease;
+    }
+
+    .role-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--gs-gold);
+      background: rgba(216, 179, 106, 0.045);
+    }
+
+    .role-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      margin-bottom: 24px;
+      border: 1px solid var(--gs-border);
+      border-radius: 5px;
+      color: var(--gs-gold);
+      font-size: 25px;
+    }
+
+    .role-card h2 {
+      margin: 0 0 12px;
+      font-size: 25px;
+    }
+
+    .role-card > p {
+      margin: 0 0 25px;
+      color: var(--gs-muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .role-benefits {
+      display: grid;
+      gap: 13px;
+      margin: 0 0 30px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .role-benefits li {
+      color: #dedbd3;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .role-benefits li::before {
+      content: "✓";
+      margin-right: 10px;
+      color: var(--gs-gold);
+    }
+
+    .role-select-button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      min-height: 50px;
+      margin-top: auto;
+      padding: 14px 17px;
+      border: 1px solid var(--gs-gold);
+      border-radius: 4px;
+      background: var(--gs-gold);
+      color: #17130c;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 180ms ease;
+    }
+
+    .role-select-button:hover {
+      background: var(--gs-gold-light);
+    }
+
+    .role-select-button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .role-message {
+      display: block;
+      margin: 24px auto 0;
+      max-width: 650px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      color: var(--gs-text);
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .role-message:empty {
+      display: none;
+    }
+
+    .role-message[data-type="error"] {
+      border-color: rgba(255, 100, 100, 0.4);
+      color: #ffb4b4;
+    }
+
+    .role-message[data-type="success"] {
+      border-color: rgba(100, 200, 130, 0.4);
+      color: #a8e8ba;
+    }
+
+    .role-footer {
+      margin-top: 48px;
+      text-align: center;
+    }
+
+    .role-back {
+      color: var(--gs-muted);
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .role-back:hover {
+      color: var(--gs-gold);
+    }
+
+    .role-security-note {
+      margin-top: 24px;
+      color: #77746d;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 650px) {
+      .role-header {
+        padding: 17px 5%;
+      }
+
+      .role-main {
+        padding: 52px 0 65px;
+      }
+
+      .role-intro {
+        margin-bottom: 28px;
+      }
+
+      .role-intro h1 {
+        letter-spacing: -0.8px;
+      }
+
+      .role-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .role-card {
+        padding: 25px;
+      }
+
+      .role-card h2 {
+        font-size: 23px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="role-header">
+    <a class="role-brand" href="index.html">
+      <span class="role-brand-mark">GS</span>
+
+      <span class="role-brand-name">
+        GS
+        <span>PLATFORM</span>
+      </span>
+    </a>
+  </header>
+
+  <main class="role-main">
+
+    <section class="role-intro">
+      <div class="role-eyebrow">Your professional journey</div>
+
+      <h1>
+        How will you use
+        <span class="role-gold">GS Platform?</span>
+      </h1>
+
+      <p>
+        Choose the role you want to use first.
+        We'll use your selection to prepare the
+        appropriate experience for your account.
+      </p>
+
+      <div
+        id="signedInUser"
+        class="role-user"
+        hidden
+      ></div>
+    </section>
+
+    <section
+      class="role-grid"
+      aria-label="Choose your role"
+    >
+
+      <article class="role-card">
+
+        <div class="role-icon" aria-hidden="true">
+          ◈
+        </div>
+
+        <h2>I'm a Freelancer</h2>
+
+        <p>
+          Showcase your abilities, discover job
+          opportunities, connect with clients, and
+          build a professional track record through
+          genuine work.
+        </p>
+
+        <ul class="role-benefits">
+          <li>Create your professional profile</li>
+          <li>Explore jobs and client opportunities</li>
+          <li>Present your services and portfolio</li>
+          <li>Build your reputation through real projects</li>
+        </ul>
+
+        <button
+          class="role-select-button"
+          type="button"
+          data-role="freelancer"
+        >
+          Continue as Freelancer
+          <span aria-hidden="true">→</span>
+        </button>
+
+      </article>
+
+
+      <article class="role-card">
+
+        <div class="role-icon" aria-hidden="true">
+          ◆
+        </div>
+
+        <h2>I'm a Client</h2>
+
+        <p>
+          Find professional talent, explain what
+          your project needs, communicate with
+          freelancers, and organize project delivery.
+        </p>
+
+        <ul class="role-benefits">
+          <li>Prepare your client profile</li>
+          <li>Discover freelancers and services</li>
+          <li>Post opportunities when that feature is ready</li>
+          <li>Organize your projects and collaboration</li>
+        </ul>
+
+        <button
+          class="role-select-button"
+          type="button"
+          data-role="client"
+        >
+          Continue as Client
+          <span aria-hidden="true">→</span>
+        </button>
+
+      </article>
+
+    </section>
+
+
+    <div
+      id="roleMessage"
+      class="role-message"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+
+    <footer class="role-footer">
+      <a class="role-back" href="index.html">
+        ← Return to GS Platform home
+      </a>
+
+      <p class="role-security-note">
+        Your role selection is saved to your authenticated
+        account. Access is subject to the platform's
+        database permissions.
+      </p>
+    </footer>
+
+  </main>
+
+
+  <script>
+    "use strict";
+
+    const SUPABASE_URL =
+      "https://xykhrjrsfrcxdmvtwsww.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
+
+    const roleMessage =
+      document.getElementById("roleMessage");
+
+    const signedInUser =
+      document.getElementById("signedInUser");
+
+    const roleButtons = [
+      ...document.querySelectorAll("[data-role]")
+    ];
+
+    let client = null;
+    let currentUser = null;
+
+    function showMessage(message, type = "error") {
+      roleMessage.textContent = message;
+      roleMessage.dataset.type = type;
+    }
+
+    function setLoading(loading, activeButton = null) {
+      roleButtons.forEach((button) => {
+        button.disabled = loading;
+      });
+
+      if (activeButton && loading) {
+        activeButton.dataset.originalText =
+          activeButton.textContent.trim();
+
+        activeButton.textContent = "Saving your selection...";
+      }
+
+      if (activeButton && !loading) {
+        activeButton.textContent =
+          activeButton.dataset.originalText ||
+          activeButton.textContent;
+
+        delete activeButton.dataset.originalText;
+      }
+    }
+
+    function getFriendlyError(error) {
+      const message =
+        String(error?.message || "").toLowerCase();
+
+      if (
+        message.includes("row-level security") ||
+        message.includes("permission denied")
+      ) {
+        return (
+          "Supabase blocked the profile update. " +
+          "The database permissions need to be configured " +
+          "before role selection can be saved."
+        );
+      }
+
+      if (
+        message.includes("network") ||
+        message.includes("fetch")
+      ) {
+        return (
+          "We couldn't connect to Supabase. " +
+          "Check your internet connection and try again."
+        );
+      }
+
+      return (
+        error?.message ||
+        "We couldn't save your role. Please try again."
+      );
+    }
+
+    async function initializeRolePage() {
+      if (
+        !window.supabase ||
+        !window.supabase.createClient
+      ) {
+        showMessage(
+          "The authentication library did not load. " +
+          "Refresh the page and try again."
+        );
+        return;
+      }
+
+      client = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+      try {
+        const {
+          data: { session },
+          error
+        } = await client.auth.getSession();
+
+        if (error) throw error;
+
+        if (!session) {
+          showMessage(
+            "Please sign in or create an account before choosing your role."
+          );
+
+          roleButtons.forEach((button) => {
+            button.disabled = true;
+          });
+
+          return;
+        }
+
+        currentUser = session.user;
+
+        const displayName =
+          currentUser.user_metadata?.display_name ||
+          currentUser.user_metadata?.name ||
+          currentUser.email ||
+          "Signed-in user";
+
+        signedInUser.textContent =
+          "Signed in as " + displayName;
+
+        signedInUser.hidden = false;
+
+        const {
+          data: profile,
+          error: profileError
+        } = await client
+          .from("profiles")
+          .select("role")
+          .eq("id", currentUser.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error(
+            "Profile lookup failed:",
+            profileError
+          );
+
+          showMessage(
+            "You're signed in, but we couldn't read your profile. " +
+            "The profiles table permissions or configuration may need attention."
+          );
+
+          return;
+        }
+
+        if (
+          profile &&
+          ["freelancer", "client"].includes(profile.role)
+        ) {
+          showMessage(
+            "Your current role is " +
+            profile.role +
+            ". You can select a role below to continue.",
+            "success"
+          );
+        }
+
+      } catch (error) {
+        console.error(
+          "Role page initialization failed:",
+          error
+        );
+
+        showMessage(getFriendlyError(error));
+      }
+    }
+
+    async function saveRole(role, button) {
+      if (!client || !currentUser) {
+        showMessage(
+          "Your authenticated session is not available. " +
+          "Please return to the home page and sign in again."
+        );
+        return;
+      }
+
+      if (!["freelancer", "client"].includes(role)) {
+        showMessage("That role selection is invalid.");
+        return;
+      }
+
+      clearMessage();
+
+      setLoading(true, button);
+
+      try {
+        /*
+         * First try updating the profile created by the
+         * Supabase auth trigger.
+         */
+        const {
+          data: existingProfile,
+          error: lookupError
+        } = await client
+          .from("profiles")
+          .select("id, username, display_name")
+          .eq("id", currentUser.id)
+          .maybeSingle();
+
+        if (lookupError) throw lookupError;
+
+        const metadata =
+          currentUser.user_metadata || {};
+
+        const emailPrefix =
+          (currentUser.email || "member")
+            .split("@")[0]
+            .replace(/[^A-Za-z0-9_]/g, "")
+            .slice(0, 15);
+
+        const fallbackUsername =
+          emailPrefix.length >= 5
+            ? emailPrefix
+            : "member_" +
+              currentUser.id.replace(/-/g, "").slice(0, 8);
+
+        const username =
+          existingProfile?.username ||
+          metadata.username ||
+          metadata.user_name ||
+          fallbackUsername;
+
+        const displayName =
+          existingProfile?.display_name ||
+          metadata.display_name ||
+          metadata.name ||
+          currentUser.email?.split("@")[0] ||
+          "GS Platform Member";
+
+        let result;
+
+        if (existingProfile) {
+          result = await client
+            .from("profiles")
+            .update({
+              role: role,
+              display_name: displayName
+            })
+            .eq("id", currentUser.id)
+            .select("id, role")
+            .single();
+
+        } else {
+          result = await client
+            .from("profiles")
+            .insert({
+              id: currentUser.id,
+              username: username,
+              display_name: displayName,
+              role: role
+            })
+            .select("id, role")
+            .single();
+        }
+
+        if (result.error) throw result.error;
+
+        showMessage(
+          "Your " +
+          role +
+          " role has been saved. Opening your workspace...",
+          "success"
+        );
+
+        /*
+         * app.html must be implemented before this
+         * destination can provide a complete dashboard.
+         */
+        window.location.assign(
+          new URL("app.html", window.location.href).href
+        );
+
+      } catch (error) {
+        console.error(
+          "Saving role failed:",
+          error
+        );
+
+        showMessage(getFriendlyError(error));
+
+      } finally {
+        setLoading(false, button);
+      }
+    }
+
+    function clearMessage() {
+      roleMessage.textContent = "";
+      delete roleMessage.dataset.type;
+    }
+
+    roleButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        saveRole(button.dataset.role, button);
+      });
+    });
+
+    initializeRolePage();
+  </script>
+
+</body>
+</html>
