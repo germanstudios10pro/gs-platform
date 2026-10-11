@@ -7,28 +7,32 @@
 
   <meta
     name="description"
-    content="Choose your professional role on GS Platform."
+    content="GS Platform — a professional marketplace connecting freelancers and clients."
   >
 
-  <title>Choose Your Role | GS Platform</title>
+  <title>GS Platform | Work Without Limits</title>
 
   <link rel="stylesheet" href="style.css">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
-      --gs-bg: #0b0b0b;
-      --gs-panel: #141414;
-      --gs-gold: #d8b36a;
-      --gs-gold-light: #f0d69b;
-      --gs-text: #f5f3ed;
-      --gs-muted: #aaa79f;
-      --gs-border: rgba(216, 179, 106, 0.22);
+      --bg: #0b0b0b;
+      --panel: #141414;
+      --panel-light: #1c1b18;
+      --gold: #d8b36a;
+      --gold-light: #f0d69b;
+      --text: #f5f3ed;
+      --muted: #aaa79f;
+      --border: rgba(216, 179, 106, .23);
+      --danger: #ff8b8b;
     }
 
     * {
       box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
@@ -36,13 +40,22 @@
       min-height: 100vh;
       background:
         radial-gradient(
-          circle at 50% 0%,
-          rgba(216, 179, 106, 0.09),
-          transparent 42%
+          ellipse at 75% 5%,
+          rgba(216, 179, 106, .10),
+          transparent 38%
         ),
-        var(--gs-bg);
-      color: var(--gs-text);
+        var(--bg);
+      color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    button,
+    input {
+      font: inherit;
     }
 
     button,
@@ -51,729 +64,894 @@
     }
 
     button {
-      font: inherit;
-    }
-
-    .role-header {
-      width: 100%;
-      padding: 22px 6%;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-    }
-
-    .role-brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--gs-text);
-      text-decoration: none;
-    }
-
-    .role-brand-mark {
-      display: grid;
-      place-items: center;
-      width: 43px;
-      height: 43px;
-      border: 1px solid var(--gs-gold);
-      color: var(--gs-gold);
-      font-weight: 800;
-      letter-spacing: -1px;
-    }
-
-    .role-brand-name {
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: 2px;
-    }
-
-    .role-brand-name span {
-      display: block;
-      margin-top: 4px;
-      color: var(--gs-gold);
-      font-size: 9px;
-      letter-spacing: 3px;
-    }
-
-    .role-main {
-      width: min(1050px, 92%);
-      margin: 0 auto;
-      padding: 76px 0 90px;
-    }
-
-    .role-intro {
-      max-width: 690px;
-      margin: 0 auto 38px;
-      text-align: center;
-    }
-
-    .role-eyebrow {
-      color: var(--gs-gold);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    .role-intro h1 {
-      margin: 18px 0;
-      font-size: clamp(32px, 5vw, 52px);
-      line-height: 1.12;
-      letter-spacing: -1.5px;
-    }
-
-    .role-gold {
-      color: var(--gs-gold);
-    }
-
-    .role-intro p {
-      max-width: 550px;
-      margin: 0 auto;
-      color: var(--gs-muted);
-      font-size: 15px;
-      line-height: 1.8;
-    }
-
-    .role-user {
-      margin-top: 22px;
-      color: var(--gs-muted);
-      font-size: 13px;
-      overflow-wrap: anywhere;
-    }
-
-    .role-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 22px;
-    }
-
-    .role-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      padding: 32px;
-      background: linear-gradient(
-        145deg,
-        rgba(255, 255, 255, 0.035),
-        rgba(255, 255, 255, 0.012)
-      );
-      border: 1px solid var(--gs-border);
-      border-radius: 8px;
-      transition:
-        border-color 180ms ease,
-        transform 180ms ease,
-        background 180ms ease;
-    }
-
-    .role-card:hover {
-      transform: translateY(-3px);
-      border-color: var(--gs-gold);
-      background: rgba(216, 179, 106, 0.045);
-    }
-
-    .role-icon {
-      display: grid;
-      place-items: center;
-      width: 58px;
-      height: 58px;
-      margin-bottom: 24px;
-      border: 1px solid var(--gs-border);
-      border-radius: 5px;
-      color: var(--gs-gold);
-      font-size: 25px;
-    }
-
-    .role-card h2 {
-      margin: 0 0 12px;
-      font-size: 25px;
-    }
-
-    .role-card > p {
-      margin: 0 0 25px;
-      color: var(--gs-muted);
-      font-size: 14px;
-      line-height: 1.8;
-    }
-
-    .role-benefits {
-      display: grid;
-      gap: 13px;
-      margin: 0 0 30px;
-      padding: 0;
-      list-style: none;
-    }
-
-    .role-benefits li {
-      color: #dedbd3;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    .role-benefits li::before {
-      content: "✓";
-      margin-right: 10px;
-      color: var(--gs-gold);
-    }
-
-    .role-select-button {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      width: 100%;
-      min-height: 50px;
-      margin-top: auto;
-      padding: 14px 17px;
-      border: 1px solid var(--gs-gold);
-      border-radius: 4px;
-      background: var(--gs-gold);
-      color: #17130c;
-      font-size: 13px;
-      font-weight: 800;
       cursor: pointer;
-      transition: background 180ms ease;
     }
 
-    .role-select-button:hover {
-      background: var(--gs-gold-light);
-    }
-
-    .role-select-button:disabled {
-      opacity: 0.6;
+    button:disabled {
       cursor: wait;
+      opacity: .65;
     }
 
-    .role-message {
-      display: block;
-      margin: 24px auto 0;
-      max-width: 650px;
-      padding: 14px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 4px;
-      color: var(--gs-text);
-      font-size: 13px;
-      line-height: 1.7;
-      overflow-wrap: anywhere;
-    }
-
-    .role-message:empty {
-      display: none;
-    }
-
-    .role-message[data-type="error"] {
-      border-color: rgba(255, 100, 100, 0.4);
-      color: #ffb4b4;
-    }
-
-    .role-message[data-type="success"] {
-      border-color: rgba(100, 200, 130, 0.4);
-      color: #a8e8ba;
-    }
-
-    .role-footer {
-      margin-top: 48px;
-      text-align: center;
-    }
-
-    .role-back {
-      color: var(--gs-muted);
-      font-size: 13px;
-      text-decoration: none;
-    }
-
-    .role-back:hover {
-      color: var(--gs-gold);
-    }
-
-    .role-security-note {
-      margin-top: 24px;
-      color: #77746d;
-      font-size: 11px;
-      line-height: 1.7;
+    a {
+      color: inherit;
     }
 
     [hidden] {
       display: none !important;
     }
 
-    @media (max-width: 650px) {
-      .role-header {
-        padding: 17px 5%;
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 17px 6%;
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+      background: rgba(11, 11, 11, .94);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 17px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .brand-name span {
+      display: block;
+      margin-top: 4px;
+      color: var(--gold);
+      font-size: 9px;
+      letter-spacing: 3px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 12px 19px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition:
+        background .2s,
+        border-color .2s,
+        transform .2s;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button-gold {
+      background: var(--gold);
+      color: #111;
+    }
+
+    .button-gold:hover {
+      background: var(--gold-light);
+    }
+
+    .button-outline {
+      border-color: var(--border);
+      background: transparent;
+      color: var(--text);
+    }
+
+    .button-outline:hover {
+      border-color: var(--gold);
+    }
+
+    .hero {
+      position: relative;
+      width: min(1120px, 90%);
+      min-height: 580px;
+      margin: 0 auto;
+      padding: 105px 0 90px;
+      display: flex;
+      align-items: center;
+    }
+
+    .hero-content {
+      max-width: 760px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 25px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .hero h1 {
+      margin: 25px 0;
+      font-size: clamp(42px, 7.4vw, 82px);
+      line-height: 1.04;
+      letter-spacing: -3px;
+    }
+
+    .gold-text {
+      color: var(--gold);
+    }
+
+    .hero-description {
+      max-width: 590px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.9;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .hero-note {
+      margin-top: 23px;
+      color: #77746d;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .section {
+      width: min(1120px, 90%);
+      margin: 0 auto;
+      padding: 55px 0 80px;
+    }
+
+    .section-heading {
+      max-width: 650px;
+      margin-bottom: 32px;
+    }
+
+    .section-heading h2 {
+      margin: 15px 0;
+      font-size: clamp(27px, 4vw, 42px);
+      letter-spacing: -1px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .feature-card {
+      padding: 27px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: linear-gradient(
+        145deg,
+        rgba(255,255,255,.035),
+        rgba(255,255,255,.008)
+      );
+    }
+
+    .feature-icon {
+      margin-bottom: 20px;
+      color: var(--gold);
+      font-size: 25px;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .cta {
+      padding: 45px 25px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background:
+        radial-gradient(
+          circle at 100% 0,
+          rgba(216, 179, 106, .13),
+          transparent 48%
+        ),
+        var(--panel);
+      text-align: center;
+    }
+
+    .cta h2 {
+      margin: 0 0 15px;
+      font-size: clamp(25px, 4vw, 38px);
+    }
+
+    .cta p {
+      max-width: 530px;
+      margin: 0 auto 24px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .site-footer {
+      padding: 28px 6%;
+      border-top: 1px solid rgba(255,255,255,.08);
+      color: #77746d;
+      font-size: 12px;
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    /* Authentication dialog */
+
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 20px;
+      background: rgba(0, 0, 0, .82);
+      backdrop-filter: blur(8px);
+    }
+
+    .auth-panel {
+      position: relative;
+      width: min(460px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      padding: 32px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #111;
+      box-shadow: 0 25px 90px rgba(0,0,0,.55);
+    }
+
+    .auth-close {
+      position: absolute;
+      top: 13px;
+      right: 14px;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text);
+      font-size: 22px;
+    }
+
+    .auth-logo {
+      margin-bottom: 23px;
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+    }
+
+    .auth-panel h2 {
+      margin: 0 35px 10px 0;
+      font-size: 27px;
+      line-height: 1.25;
+    }
+
+    .auth-subtitle {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .google-button {
+      display: flex;
+      width: 100%;
+      min-height: 48px;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 5px;
+      background: #f8f8f8;
+      color: #171717;
+      font-weight: 700;
+    }
+
+    .google-letter {
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 22px 0;
+      color: #888;
+      font-size: 11px;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: rgba(255,255,255,.12);
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: #dedbd2;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input {
+      display: block;
+      width: 100%;
+      min-height: 46px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 5px;
+      outline: none;
+      background: #191919;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .field input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(216,179,106,.1);
+    }
+
+    .password-wrap {
+      display: flex;
+      gap: 8px;
+    }
+
+    .password-wrap input {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .password-toggle {
+      padding: 0 11px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      background: transparent;
+      color: var(--gold);
+      font-size: 12px;
+    }
+
+    .password-help {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.7;
+    }
+
+    .terms-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 18px 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .terms-row input {
+      margin-top: 3px;
+      accent-color: var(--gold);
+    }
+
+    .forgot-row {
+      display: flex;
+      justify-content: flex-end;
+      margin: 0 0 18px;
+    }
+
+    .text-button {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--gold);
+      font-size: 12px;
+      text-decoration: underline;
+    }
+
+    .submit-button {
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: 5px;
+      background: var(--gold);
+      color: #111;
+      font-weight: 800;
+    }
+
+    .submit-button:hover {
+      background: var(--gold-light);
+    }
+
+    .auth-message {
+      margin: 15px 0;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .auth-message[data-type="success"] {
+      border-color: #427d5b;
+      background: rgba(42, 110, 70, .12);
+    }
+
+    .auth-message[data-type="error"] {
+      border-color: rgba(255,139,139,.4);
+      color: #ffc2c2;
+    }
+
+    .auth-switch {
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .auth-switch button {
+      margin-left: 5px;
+    }
+
+    .auth-security {
+      margin-top: 20px;
+      color: #77746d;
+      font-size: 10px;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      .site-header {
+        padding: 14px 5%;
       }
 
-      .role-main {
-        padding: 52px 0 65px;
+      .header-actions {
+        gap: 7px;
       }
 
-      .role-intro {
-        margin-bottom: 28px;
+      .header-actions .button {
+        min-height: 40px;
+        padding: 10px 12px;
+        font-size: 11px;
       }
 
-      .role-intro h1 {
-        letter-spacing: -0.8px;
+      .hero {
+        min-height: auto;
+        padding: 80px 0;
       }
 
-      .role-grid {
+      .hero h1 {
+        letter-spacing: -1.8px;
+      }
+
+      .feature-grid {
         grid-template-columns: 1fr;
-        gap: 16px;
       }
 
-      .role-card {
-        padding: 25px;
+      .section {
+        padding: 40px 0 60px;
       }
 
-      .role-card h2 {
-        font-size: 23px;
+      .auth-panel {
+        padding: 26px 20px;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
       *,
       *::before,
       *::after {
-        transition-duration: 0.01ms !important;
+        transition-duration: .01ms !important;
       }
     }
   </style>
 </head>
 
 <body>
-
-  <header class="role-header">
-    <a class="role-brand" href="index.html">
-      <span class="role-brand-mark">GS</span>
-
-      <span class="role-brand-name">
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="GS Platform home">
+      <span class="brand-mark">GS</span>
+      <span class="brand-name">
         GS
         <span>PLATFORM</span>
       </span>
     </a>
+
+    <div class="header-actions">
+      <button
+        class="button button-outline"
+        type="button"
+        data-open-auth="login"
+      >
+        Log in
+      </button>
+
+      <button
+        class="button button-gold"
+        type="button"
+        data-open-auth="signup"
+      >
+        Get started
+      </button>
+    </div>
   </header>
 
-  <main class="role-main">
-
-    <section class="role-intro">
-      <div class="role-eyebrow">Your professional journey</div>
-
-      <h1>
-        How will you use
-        <span class="role-gold">GS Platform?</span>
-      </h1>
-
-      <p>
-        Choose the role you want to use first.
-        We'll use your selection to prepare the
-        appropriate experience for your account.
-      </p>
-
-      <div
-        id="signedInUser"
-        class="role-user"
-        hidden
-      ></div>
-    </section>
-
-    <section
-      class="role-grid"
-      aria-label="Choose your role"
-    >
-
-      <article class="role-card">
-
-        <div class="role-icon" aria-hidden="true">
-          ◈
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <div class="eyebrow">
+          A platform for professional work
         </div>
 
-        <h2>I'm a Freelancer</h2>
+        <h1>
+          Your talent.<br>
+          Your clients.<br>
+          <span class="gold-text">Your next chapter.</span>
+        </h1>
 
-        <p>
-          Showcase your abilities, discover job
-          opportunities, connect with clients, and
-          build a professional track record through
-          genuine work.
+        <p class="hero-description">
+          GS Platform brings freelancers and clients together
+          to discover opportunities, build professional
+          relationships, and organize project collaboration.
         </p>
 
-        <ul class="role-benefits">
-          <li>Create your professional profile</li>
-          <li>Explore jobs and client opportunities</li>
-          <li>Present your services and portfolio</li>
-          <li>Build your reputation through real projects</li>
-        </ul>
+        <div class="hero-actions">
+          <button
+            class="button button-gold"
+            type="button"
+            data-open-auth="signup"
+          >
+            Create your account →
+          </button>
 
-        <button
-          class="role-select-button"
-          type="button"
-          data-role="freelancer"
-        >
-          Continue as Freelancer
-          <span aria-hidden="true">→</span>
-        </button>
-
-      </article>
-
-
-      <article class="role-card">
-
-        <div class="role-icon" aria-hidden="true">
-          ◆
+          <button
+            class="button button-outline"
+            type="button"
+            data-open-auth="login"
+          >
+            I already have an account
+          </button>
         </div>
 
-        <h2>I'm a Client</h2>
-
-        <p>
-          Find professional talent, explain what
-          your project needs, communicate with
-          freelancers, and organize project delivery.
+        <p class="hero-note">
+          Create an account using your email address or
+          continue with Google. Your account is managed
+          through secure authentication services.
         </p>
-
-        <ul class="role-benefits">
-          <li>Prepare your client profile</li>
-          <li>Discover freelancers and services</li>
-          <li>Post opportunities when that feature is ready</li>
-          <li>Organize your projects and collaboration</li>
-        </ul>
-
-        <button
-          class="role-select-button"
-          type="button"
-          data-role="client"
-        >
-          Continue as Client
-          <span aria-hidden="true">→</span>
-        </button>
-
-      </article>
-
+      </div>
     </section>
 
+    <section class="section">
+      <div class="section-heading">
+        <div class="eyebrow">Built for collaboration</div>
 
-    <div
-      id="roleMessage"
-      class="role-message"
-      role="status"
-      aria-live="polite"
-    ></div>
+        <h2>
+          More than a place to find work.
+        </h2>
 
+        <p>
+          A professional foundation for discovering talent,
+          managing work, and building a reputation through
+          genuine collaboration.
+        </p>
+      </div>
 
-    <footer class="role-footer">
-      <a class="role-back" href="index.html">
-        ← Return to GS Platform home
-      </a>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">◇</div>
+          <h3>Discover opportunities</h3>
+          <p>
+            Find relevant work and connect with professionals
+            whose skills match your project needs.
+          </p>
+        </article>
 
-      <p class="role-security-note">
-        Your role selection is saved to your authenticated
-        account. Access is subject to the platform's
-        database permissions.
-      </p>
-    </footer>
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">✦</div>
+          <h3>Build your reputation</h3>
+          <p>
+            Develop a professional presence through your
+            profile, portfolio, and completed work.
+          </p>
+        </article>
 
+        <article class="feature-card">
+          <div class="feature-icon" aria-hidden="true">▣</div>
+          <h3>Organize your projects</h3>
+          <p>
+            Work toward a clear collaboration process
+            between clients and freelancers.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="cta">
+        <h2>Start your professional journey.</h2>
+
+        <p>
+          Create your account to get started with GS Platform.
+          You can use email authentication or Google sign-in.
+        </p>
+
+        <button
+          class="button button-gold"
+          type="button"
+          data-open-auth="signup"
+        >
+          Join GS Platform
+        </button>
+      </div>
+    </section>
   </main>
 
+  <footer class="site-footer">
+    <div>GS PLATFORM</div>
+    <div>
+      A professional marketplace for freelancers and clients.
+    </div>
+  </footer>
 
-  <script>
-    "use strict";
+  <!-- Real authentication form connected to script.js -->
 
-    const SUPABASE_URL =
-      "https://xykhrjrsfrcxdmvtwsww.supabase.co";
+  <div
+    class="auth-overlay"
+    id="authOverlay"
+    hidden
+    aria-hidden="true"
+  >
+    <section
+      class="auth-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="authTitle"
+    >
+      <button
+        class="auth-close"
+        id="closeAuth"
+        type="button"
+        aria-label="Close authentication"
+      >
+        ×
+      </button>
 
-    const SUPABASE_PUBLISHABLE_KEY =
-      "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
+      <div class="auth-logo">GS PLATFORM</div>
 
-    const roleMessage =
-      document.getElementById("roleMessage");
+      <h2 id="authTitle">Welcome back</h2>
 
-    const signedInUser =
-      document.getElementById("signedInUser");
+      <p class="auth-subtitle" id="authSubtitle">
+        Sign in to continue to GS Platform.
+      </p>
 
-    const roleButtons = [
-      ...document.querySelectorAll("[data-role]")
-    ];
+      <button
+        class="google-button"
+        id="googleButton"
+        type="button"
+      >
+        <span class="google-letter" aria-hidden="true">G</span>
+        <span>Continue with Google</span>
+      </button>
 
-    let client = null;
-    let currentUser = null;
+      <div class="auth-divider">OR USE YOUR EMAIL</div>
 
-    function showMessage(message, type = "error") {
-      roleMessage.textContent = message;
-      roleMessage.dataset.type = type;
-    }
+      <form id="emailAuthForm" data-mode="login">
+        <div class="field" id="displayNameField" hidden>
+          <label for="displayName">Full name</label>
+          <input
+            id="displayName"
+            name="displayName"
+            type="text"
+            autocomplete="name"
+            maxlength="100"
+            placeholder="Enter your name"
+          >
+        </div>
 
-    function setLoading(loading, activeButton = null) {
-      roleButtons.forEach((button) => {
-        button.disabled = loading;
-      });
+        <div class="field" id="usernameField" hidden>
+          <label for="username">Username</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            minlength="5"
+            maxlength="15"
+            pattern="[A-Za-z0-9_]{5,15}"
+            autocomplete="username"
+            placeholder="5–15 letters, numbers, or underscores"
+          >
+        </div>
 
-      if (activeButton && loading) {
-        activeButton.dataset.originalText =
-          activeButton.textContent.trim();
+        <div class="field">
+          <label for="email">Email address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="you@example.com"
+          >
+        </div>
 
-        activeButton.textContent = "Saving your selection...";
-      }
+        <div class="field">
+          <label for="password">Password</label>
 
-      if (activeButton && !loading) {
-        activeButton.textContent =
-          activeButton.dataset.originalText ||
-          activeButton.textContent;
+          <div class="password-wrap">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              placeholder="Enter your password"
+            >
 
-        delete activeButton.dataset.originalText;
-      }
-    }
+            <button
+              class="password-toggle"
+              id="togglePassword"
+              type="button"
+              aria-label="Show password"
+              aria-pressed="false"
+            >
+              Show
+            </button>
+          </div>
 
-    function getFriendlyError(error) {
-      const message =
-        String(error?.message || "").toLowerCase();
+          <div class="password-help" id="passwordHelp" hidden>
+            Use at least 8 characters, including uppercase
+            and lowercase letters, a number, and a special character.
+          </div>
+        </div>
 
-      if (
-        message.includes("row-level security") ||
-        message.includes("permission denied")
-      ) {
-        return (
-          "Supabase blocked the profile update. " +
-          "The database permissions need to be configured " +
-          "before role selection can be saved."
-        );
-      }
+        <div
+          class="field"
+          id="confirmPasswordField"
+          hidden
+        >
+          <label for="confirmPassword">Confirm password</label>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Enter your password again"
+          >
+        </div>
 
-      if (
-        message.includes("network") ||
-        message.includes("fetch")
-      ) {
-        return (
-          "We couldn't connect to Supabase. " +
-          "Check your internet connection and try again."
-        );
-      }
+        <div class="forgot-row">
+          <button
+            class="text-button"
+            id="forgotPasswordButton"
+            type="button"
+          >
+            Forgot password?
+          </button>
+        </div>
 
-      return (
-        error?.message ||
-        "We couldn't save your role. Please try again."
-      );
-    }
+        <div id="termsField" hidden>
+          <label class="terms-row">
+            <input
+              id="acceptTerms"
+              name="acceptTerms"
+              type="checkbox"
+            >
+            <span>
+              I agree to the Terms of Service and Privacy Policy.
+            </span>
+          </label>
+        </div>
 
-    async function initializeRolePage() {
-      if (
-        !window.supabase ||
-        !window.supabase.createClient
-      ) {
-        showMessage(
-          "The authentication library did not load. " +
-          "Refresh the page and try again."
-        );
-        return;
-      }
+        <div
+          class="auth-message"
+          id="authMessage"
+          role="status"
+          aria-live="polite"
+          hidden
+        ></div>
 
-      client = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_PUBLISHABLE_KEY
-      );
+        <button
+          class="submit-button"
+          id="emailSubmitButton"
+          type="submit"
+        >
+          Sign in
+        </button>
+      </form>
 
-      try {
-        const {
-          data: { session },
-          error
-        } = await client.auth.getSession();
+      <p class="auth-switch">
+        <span id="authSwitchText">New to GS Platform?</span>
 
-        if (error) throw error;
+        <button
+          class="text-button"
+          id="authSwitchButton"
+          type="button"
+        >
+          Create account
+        </button>
+      </p>
 
-        if (!session) {
-          showMessage(
-            "Please sign in or create an account before choosing your role."
-          );
+      <p class="auth-security">
+        Your authentication is handled by Supabase.
+        Never share your password with anyone.
+      </p>
+    </section>
+  </div>
 
-          roleButtons.forEach((button) => {
-            button.disabled = true;
-          });
-
-          return;
-        }
-
-        currentUser = session.user;
-
-        const displayName =
-          currentUser.user_metadata?.display_name ||
-          currentUser.user_metadata?.name ||
-          currentUser.email ||
-          "Signed-in user";
-
-        signedInUser.textContent =
-          "Signed in as " + displayName;
-
-        signedInUser.hidden = false;
-
-        const {
-          data: profile,
-          error: profileError
-        } = await client
-          .from("profiles")
-          .select("role")
-          .eq("id", currentUser.id)
-          .maybeSingle();
-
-        if (profileError) {
-          console.error(
-            "Profile lookup failed:",
-            profileError
-          );
-
-          showMessage(
-            "You're signed in, but we couldn't read your profile. " +
-            "The profiles table permissions or configuration may need attention."
-          );
-
-          return;
-        }
-
-        if (
-          profile &&
-          ["freelancer", "client"].includes(profile.role)
-        ) {
-          showMessage(
-            "Your current role is " +
-            profile.role +
-            ". You can select a role below to continue.",
-            "success"
-          );
-        }
-
-      } catch (error) {
-        console.error(
-          "Role page initialization failed:",
-          error
-        );
-
-        showMessage(getFriendlyError(error));
-      }
-    }
-
-    async function saveRole(role, button) {
-      if (!client || !currentUser) {
-        showMessage(
-          "Your authenticated session is not available. " +
-          "Please return to the home page and sign in again."
-        );
-        return;
-      }
-
-      if (!["freelancer", "client"].includes(role)) {
-        showMessage("That role selection is invalid.");
-        return;
-      }
-
-      clearMessage();
-
-      setLoading(true, button);
-
-      try {
-        /*
-         * First try updating the profile created by the
-         * Supabase auth trigger.
-         */
-        const {
-          data: existingProfile,
-          error: lookupError
-        } = await client
-          .from("profiles")
-          .select("id, username, display_name")
-          .eq("id", currentUser.id)
-          .maybeSingle();
-
-        if (lookupError) throw lookupError;
-
-        const metadata =
-          currentUser.user_metadata || {};
-
-        const emailPrefix =
-          (currentUser.email || "member")
-            .split("@")[0]
-            .replace(/[^A-Za-z0-9_]/g, "")
-            .slice(0, 15);
-
-        const fallbackUsername =
-          emailPrefix.length >= 5
-            ? emailPrefix
-            : "member_" +
-              currentUser.id.replace(/-/g, "").slice(0, 8);
-
-        const username =
-          existingProfile?.username ||
-          metadata.username ||
-          metadata.user_name ||
-          fallbackUsername;
-
-        const displayName =
-          existingProfile?.display_name ||
-          metadata.display_name ||
-          metadata.name ||
-          currentUser.email?.split("@")[0] ||
-          "GS Platform Member";
-
-        let result;
-
-        if (existingProfile) {
-          result = await client
-            .from("profiles")
-            .update({
-              role: role,
-              display_name: displayName
-            })
-            .eq("id", currentUser.id)
-            .select("id, role")
-            .single();
-
-        } else {
-          result = await client
-            .from("profiles")
-            .insert({
-              id: currentUser.id,
-              username: username,
-              display_name: displayName,
-              role: role
-            })
-            .select("id, role")
-            .single();
-        }
-
-        if (result.error) throw result.error;
-
-        showMessage(
-          "Your " +
-          role +
-          " role has been saved. Opening your workspace...",
-          "success"
-        );
-
-        /*
-         * app.html must be implemented before this
-         * destination can provide a complete dashboard.
-         */
-        window.location.assign(
-          new URL("app.html", window.location.href).href
-        );
-
-      } catch (error) {
-        console.error(
-          "Saving role failed:",
-          error
-        );
-
-        showMessage(getFriendlyError(error));
-
-      } finally {
-        setLoading(false, button);
-      }
-    }
-
-    function clearMessage() {
-      roleMessage.textContent = "";
-      delete roleMessage.dataset.type;
-    }
-
-    roleButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        saveRole(button.dataset.role, button);
-      });
-    });
-
-    initializeRolePage();
-  </script>
-
+  <!-- Load Supabase first, then the existing authentication code. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
 </body>
 </html>
