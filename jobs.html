@@ -1,1 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <title>Jobs Marketplace | GS Platform</title>
+
+  <meta
+    name="description"
+    content="Discover genuine professional opportunities on GS Platform."
+  >
+
+  <meta name="theme-color" content="#0b0b0b">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --panel: #141414;
+      --panel-light: #1c1c1c;
+      --gold: #d8b45a;
+      --gold-light: #f1d58b;
+      --text: #f5f3ed;
+      --muted: #a7a7a7;
+      --border: rgba(216, 180, 90, 0.22);
+      --error: #ff9999;
+      --success: #a8dfb4;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(
+          circle at 85% 0%,
+          rgba(216, 180, 90, 0.07),
+          transparent 30rem
+        ),
+        var(--bg);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--gold-light);
+      outline-offset: 3px;
+    }
+
+    .topbar {
+      min-height: 72px;
+      padding: 14px 5%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11, 11, 11, 0.96);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      color: #111;
+      background: linear-gradient(
+        135deg,
+        var(--gold-light),
+        var(--gold)
+      );
+      font-weight: 900;
+    }
+
+    .brand-name {
+      color: var(--gold-light);
+    }
+
+    .back-link {
+      color: var(--gold-light);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 40px 25px 65px;
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 45px);
+      line-height: 1.2;
+      letter-spacing: -1px;
+    }
+
+    .intro {
+      max-width: 680px;
+      margin: 14px 0 28px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .search-panel {
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: var(--panel);
+    }
+
+    .search-panel h2 {
+      margin: 0 0 17px;
+      font-size: 16px;
+    }
+
+    .search-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 190px auto;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .field {
+      min-width: 0;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: #dedede;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 12px;
+      border: 1px solid #373737;
+      border-radius: 9px;
+      color: var(--text);
+      background: #101010;
+    }
+
+    .field input::placeholder {
+      color: #777;
+    }
+
+    .button {
+      min-height: 45px;
+      padding: 10px 16px;
+      border: 1px solid var(--gold);
+      border-radius: 9px;
+      color: #111;
+      background: var(--gold);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .button:hover {
+      background: var(--gold-light);
+    }
+
+    .button.secondary {
+      color: var(--gold-light);
+      background: transparent;
+    }
+
+    .button.secondary:hover {
+      background: rgba(216, 180, 90, 0.08);
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .toolbar {
+      margin-top: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .results-title {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .results-count {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .message {
+      margin: 17px 0;
+      padding: 14px 16px;
+      border: 1px solid #353535;
+      border-radius: 10px;
+      color: var(--muted);
+      background: var(--panel);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .message.error {
+      color: var(--error);
+      border-color: rgba(255, 153, 153, 0.35);
+    }
+
+    .message.success {
+      color: var(--success);
+      border-color: rgba(168, 223, 180, 0.35);
+    }
+
+    .job-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .job-card {
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 14px;
+      background: var(--panel);
+      transition: border-color 0.2s ease;
+    }
+
+    .job-card:hover {
+      border-color: var(--border);
+    }
+
+    .job-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .job-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .job-category {
+      display: inline-block;
+      margin-top: 9px;
+      padding: 5px 9px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--gold-light);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .job-budget {
+      flex-shrink: 0;
+      color: var(--gold-light);
+      font-size: 13px;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .job-budget small {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 400;
+    }
+
+    .job-description {
+      margin: 16px 0;
+      color: #c6c6c6;
+      font-size: 13px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px 20px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .job-meta strong {
+      color: #e4e4e4;
+      font-weight: 700;
+    }
+
+    .job-skills {
+      margin-top: 13px;
+      color: var(--muted);
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .empty-state {
+      padding: 35px 20px;
+      border: 1px dashed #393939;
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.015);
+      text-align: center;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .empty-state p {
+      max-width: 490px;
+      margin: 0 auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    footer {
+      padding: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        padding: 30px 16px 45px;
+      }
+
+      .search-form {
+        grid-template-columns: 1fr;
+      }
+
+      .search-form .button {
+        width: 100%;
+      }
+
+      .search-panel {
+        padding: 17px;
+      }
+
+      .job-card {
+        padding: 17px;
+      }
+
+      .job-top {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .job-budget {
+        text-align: left;
+      }
+
+      .toolbar {
+        align-items: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <a class="brand" href="app.html" aria-label="GS Platform dashboard">
+      <span class="brand-mark">GS</span>
+      <span>GS <span class="brand-name">Platform</span></span>
+    </a>
+
+    <a class="back-link" href="app.html">← Dashboard</a>
+  </header>
+
+  <main>
+    <section aria-labelledby="pageTitle">
+      <p class="eyebrow">Opportunities</p>
+
+      <h1 id="pageTitle">Find work worth doing.</h1>
+
+      <p class="intro">
+        Explore genuine opportunities posted by clients. Review the
+        requirements, budget, and deadline before deciding whether
+        a job fits your skills.
+      </p>
+    </section>
+
+    <section class="search-panel" aria-labelledby="searchHeading">
+      <h2 id="searchHeading">Find your next opportunity</h2>
+
+      <form id="searchForm" class="search-form">
+        <div class="field">
+          <label for="searchTerm">Search jobs</label>
+
+          <input
+            id="searchTerm"
+            name="searchTerm"
+            type="search"
+            maxlength="60"
+            placeholder="Search titles, descriptions, or skills"
+            autocomplete="off"
+          >
+        </div>
+
+        <div class="field">
+          <label for="categoryFilter">Category</label>
+
+          <select id="categoryFilter" name="categoryFilter">
+            <option value="all">All categories</option>
+          </select>
+        </div>
+
+        <button id="searchButton" class="button" type="submit">
+          Search jobs
+        </button>
+      </form>
+    </section>
+
+    <section aria-labelledby="resultsHeading">
+      <div class="toolbar">
+        <div>
+          <h2 class="results-title" id="resultsHeading">
+            Available opportunities
+          </h2>
+
+          <div class="results-count" id="resultsCount">
+            Checking available jobs...
+          </div>
+        </div>
+
+        <button
+          type="button"
+          id="refreshButton"
+          class="button secondary"
+        >
+          Refresh listings
+        </button>
+      </div>
+
+      <div
+        id="statusMessage"
+        class="message"
+        role="status"
+        aria-live="polite"
+      >
+        Connecting to GS Platform...
+      </div>
+
+      <div id="jobList" class="job-list"></div>
+    </section>
+  </main>
+
+  <footer>
+    GS Platform · Professional work, built on trust.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const SUPABASE_URL =
+        "https://xykhrjrsfrcxdmvtwsww.supabase.co";
+
+      const SUPABASE_PUBLISHABLE_KEY =
+        "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
+
+      const form = document.getElementById("searchForm");
+      const searchTerm = document.getElementById("searchTerm");
+      const categoryFilter = document.getElementById("categoryFilter");
+      const searchButton = document.getElementById("searchButton");
+      const refreshButton = document.getElementById("refreshButton");
+      const statusMessage = document.getElementById("statusMessage");
+      const jobList = document.getElementById("jobList");
+      const resultsCount = document.getElementById("resultsCount");
+
+      let client = null;
+      let currentUserId = null;
+      let allJobs = [];
+      let requestId = 0;
+      let isLoading = false;
+
+      function setStatus(message, type = "") {
+        statusMessage.textContent = message;
+        statusMessage.className = "message";
+
+        if (type) {
+          statusMessage.classList.add(type);
+        }
+      }
+
+      function setLoading(value) {
+        isLoading = value;
+        searchButton.disabled = value;
+        refreshButton.disabled = value;
+
+        searchButton.textContent = value
+          ? "Loading..."
+          : "Search jobs";
+
+        refreshButton.textContent = value
+          ? "Refreshing..."
+          : "Refresh listings";
+      }
+
+      function makeElement(tag, className, text) {
+        const element = document.createElement(tag);
+
+        if (className) {
+          element.className = className;
+        }
+
+        if (text !== undefined && text !== null) {
+          element.textContent = String(text);
+        }
+
+        return element;
+      }
+
+      function cleanText(value, fallback = "") {
+        if (typeof value !== "string") {
+          return fallback;
+        }
+
+        return value.trim() || fallback;
+      }
+
+      function formatMoney(value, currency) {
+        if (value === null || value === undefined || value === "") {
+          return null;
+        }
+
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+          return null;
+        }
+
+        try {
+          return new Intl.NumberFormat("en", {
+            style: "currency",
+            currency,
+            maximumFractionDigits: 2
+          }).format(amount);
+        } catch {
+          return currency + " " + amount.toLocaleString("en");
+        }
+      }
+
+      function formatBudget(job) {
+        const currency = cleanText(job.currency, "USD");
+        const minimum = formatMoney(job.budget_min, currency);
+        const maximum = formatMoney(job.budget_max, currency);
+
+        if (minimum && maximum) {
+          if (Number(job.budget_min) === Number(job.budget_max)) {
+            return minimum;
+          }
+
+          return minimum + " – " + maximum;
+        }
+
+        if (minimum) {
+          return "From " + minimum;
+        }
+
+        if (maximum) {
+          return "Up to " + maximum;
+        }
+
+        return "Not specified";
+      }
+
+      function formatDeadline(value) {
+        if (!value) {
+          return "Not specified";
+        }
+
+        const date = new Date(value + "T00:00:00");
+
+        if (Number.isNaN(date.getTime())) {
+          return "Not specified";
+        }
+
+        return new Intl.DateTimeFormat("en", {
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        }).format(date);
+      }
+
+      function populateCategories(jobs) {
+        const previous = categoryFilter.value;
+        const categories = new Set();
+
+        for (const job of jobs) {
+          const category = cleanText(job.category);
+
+          if (category) {
+            categories.add(category);
+          }
+        }
+
+        categoryFilter.replaceChildren();
+
+        categoryFilter.appendChild(
+          makeElement("option", "", "All categories")
+        );
+
+        categoryFilter.options[0].value = "all";
+
+        for (const category of [...categories].sort()) {
+          const option = makeElement("option", "", category);
+          option.value = category;
+          categoryFilter.appendChild(option);
+        }
+
+        if (
+          previous === "all" ||
+          [...categories].includes(previous)
+        ) {
+          categoryFilter.value = previous;
+        } else {
+          categoryFilter.value = "all";
+        }
+      }
+
+      function createJobCard(job) {
+        const card = makeElement("article", "job-card");
+
+        const top = makeElement("div", "job-top");
+        const titleArea = makeElement("div", "");
+
+        titleArea.appendChild(
+          makeElement(
+            "h3",
+            "job-title",
+            cleanText(job.title, "Untitled job")
+          )
+        );
+
+        const category = cleanText(job.category);
+
+        if (category) {
+          titleArea.appendChild(
+            makeElement("span", "job-category", category)
+          );
+        }
+
+        const budget = makeElement("div", "job-budget");
+
+        budget.appendChild(
+          document.createTextNode(formatBudget(job))
+        );
+
+        budget.appendChild(
+          makeElement(
+            "small",
+            "",
+            job.budget_type === "hourly"
+              ? "Hourly budget"
+              : "Project budget"
+          )
+        );
+
+        top.append(titleArea, budget);
+        card.appendChild(top);
+
+        card.appendChild(
+          makeElement(
+            "p",
+            "job-description",
+            cleanText(job.description, "No description provided.")
+          )
+        );
+
+        const meta = makeElement("div", "job-meta");
+
+        const jobType = job.budget_type === "hourly"
+          ? "Hourly"
+          : "Fixed price";
+
+        const createdAt = job.created_at
+          ? new Date(job.created_at)
+          : null;
+
+        const posted = createdAt && !Number.isNaN(createdAt.getTime())
+          ? new Intl.DateTimeFormat("en", {
+              year: "numeric",
+              month: "short",
+              day: "numeric"
+            }).format(createdAt)
+          : "Date unavailable";
+
+        const deadline = formatDeadline(job.deadline);
+
+        const details = [
+          ["Type", jobType],
+          ["Deadline", deadline],
+          ["Posted", posted]
+        ];
+
+        for (const [label, value] of details) {
+          const item = makeElement("span", "");
+          item.appendChild(
+            makeElement("strong", "", label + ": ")
+          );
+          item.appendChild(
+            document.createTextNode(value)
+          );
+          meta.appendChild(item);
+        }
+
+        card.appendChild(meta);
+
+        const skills = cleanText(job.skills);
+
+        if (skills) {
+          card.appendChild(
+            makeElement("p", "job-skills", "Skills: " + skills)
+          );
+        }
+
+        return card;
+      }
+
+      function renderJobs(jobs) {
+        jobList.replaceChildren();
+
+        if (!jobs.length) {
+          resultsCount.textContent = "0 matching jobs";
+
+          const empty = makeElement("div", "empty-state");
+
+          empty.appendChild(
+            makeElement("h3", "", "No matching jobs")
+          );
+
+          empty.appendChild(
+            makeElement(
+              "p",
+              "",
+              allJobs.length === 0
+                ? "There are currently no open jobs available in the " +
+                  "records we could access. Check again later as genuine " +
+                  "opportunities are published."
+                : "Try another keyword or choose a different category."
+            )
+          );
+
+          jobList.appendChild(empty);
+          return;
+        }
+
+        resultsCount.textContent =
+          jobs.length + (jobs.length === 1 ? " job" : " jobs");
+
+        const fragment = document.createDocumentFragment();
+
+        for (const job of jobs) {
+          fragment.appendChild(createJobCard(job));
+        }
+
+        jobList.appendChild(fragment);
+      }
+
+      function applyFilters() {
+        const term = searchTerm.value
+          .normalize("NFKC")
+          .trim()
+          .toLocaleLowerCase();
+
+        const selectedCategory = categoryFilter.value;
+
+        const filtered = allJobs.filter(job => {
+          const searchable = [
+            job.title,
+            job.description,
+            job.skills,
+            job.category
+          ]
+            .map(value => cleanText(value))
+            .join(" ")
+            .toLocaleLowerCase();
+
+          const matchesTerm =
+            !term || searchable.includes(term);
+
+          const matchesCategory =
+            selectedCategory === "all" ||
+            cleanText(job.category) === selectedCategory;
+
+          return matchesTerm && matchesCategory;
+        });
+
+        renderJobs(filtered);
+      }
+
+      async function loadJobs() {
+        if (isLoading) {
+          return;
+        }
+
+        const thisRequest = ++requestId;
+
+        setLoading(true);
+        jobList.replaceChildren();
+
+        resultsCount.textContent = "Loading listings...";
+
+        setStatus("Loading real job listings from Supabase...");
+
+        try {
+          const response = await client
+            .from("jobs")
+            .select(
+              "id, client_id, title, description, category, skills, " +
+              "budget_type, budget_min, budget_max, currency, " +
+              "deadline, status, created_at"
+            )
+            .eq("status", "open")
+            .order("created_at", { ascending: false })
+            .limit(100);
+
+          if (thisRequest !== requestId) {
+            return;
+          }
+
+          if (response.error) {
+            console.error("Job listing query failed:", response.error);
+
+            allJobs = [];
+            renderJobs([]);
+
+            resultsCount.textContent = "Listings unavailable.";
+
+            setStatus(
+              "We could not load job listings. Check that the jobs table " +
+              "exists, its columns match this page, and its Row Level " +
+              "Security policies permit signed-in users to read open jobs. " +
+              "No sample jobs have been substituted.",
+              "error"
+            );
+
+            return;
+          }
+
+          allJobs = Array.isArray(response.data)
+            ? response.data
+            : [];
+
+          populateCategories(allJobs);
+          applyFilters();
+
+          setStatus(
+            allJobs.length
+              ? "Listings loaded from the GS Platform database."
+              : "The database returned no open job listings.",
+            allJobs.length ? "success" : ""
+          );
+
+        } catch (error) {
+          console.error("Unexpected job loading error:", error);
+
+          if (thisRequest === requestId) {
+            allJobs = [];
+            renderJobs([]);
+
+            resultsCount.textContent = "Listings unavailable.";
+
+            setStatus(
+              "An unexpected error prevented job listings from loading. " +
+              "Check your internet connection and try again.",
+              "error"
+            );
+          }
+        } finally {
+          if (thisRequest === requestId) {
+            setLoading(false);
+          }
+        }
+      }
+
+      async function initialize() {
+        if (!window.supabase || !window.supabase.createClient) {
+          setStatus(
+            "The Supabase library could not load. Check your connection " +
+            "and reload this page.",
+            "error"
+          );
+
+          resultsCount.textContent = "Connection unavailable.";
+          return;
+        }
+
+        try {
+          client = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY
+          );
+
+          const sessionResult = await client.auth.getSession();
+
+          if (sessionResult.error) {
+            throw sessionResult.error;
+          }
+
+          const session = sessionResult.data.session;
+
+          if (!session || !session.user) {
+            window.location.replace(
+              "index.html?next=" + encodeURIComponent("jobs.html")
+            );
+
+            return;
+          }
+
+          currentUserId = session.user.id;
+
+          form.addEventListener("submit", event => {
+            event.preventDefault();
+            applyFilters();
+          });
+
+          categoryFilter.addEventListener("change", applyFilters);
+
+          refreshButton.addEventListener("click", loadJobs);
+
+          client.auth.onAuthStateChange(event => {
+            if (event === "SIGNED_OUT") {
+              currentUserId = null;
+
+              window.location.replace(
+                "index.html?next=" + encodeURIComponent("jobs.html")
+              );
+            }
+          });
+
+          await loadJobs();
+
+        } catch (error) {
+          console.error("Jobs page initialization failed:", error);
+
+          setStatus(
+            "We could not verify your session or connect to the database. " +
+            "Please reload the page or sign in again.",
+            "error"
+          );
+
+          resultsCount.textContent = "Unable to load jobs.";
+        }
+      }
+
+      initialize();
+    })();
+  </script>
+</body>
+</html>
