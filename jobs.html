@@ -1,428 +1,364 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Jobs Marketplace | GS Platform</title>
+  <title>Jobs | GS Platform</title>
 
   <meta
     name="description"
-    content="Discover genuine professional opportunities on GS Platform."
+    content="Discover real freelance opportunities and manage your job applications on GS Platform."
   >
 
-  <meta name="theme-color" content="#0b0b0b">
-
-  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --bg: #0b0b0b;
+      --bg: #090909;
       --panel: #141414;
       --panel-light: #1c1c1c;
-      --gold: #d8b45a;
-      --gold-light: #f1d58b;
-      --text: #f5f3ed;
+      --gold: #d7ad55;
+      --gold-light: #f2d58d;
+      --text: #f5f5f5;
       --muted: #a7a7a7;
-      --border: rgba(216, 180, 90, 0.22);
-      --error: #ff9999;
-      --success: #a8dfb4;
+      --border: #303030;
+      --danger: #ff8585;
+      --success: #8be0ad;
     }
 
     * {
       box-sizing: border-box;
     }
 
-    html {
-      min-height: 100%;
-      background: var(--bg);
-    }
-
     body {
-      min-height: 100vh;
       margin: 0;
+      background: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(
-          circle at 85% 0%,
-          rgba(216, 180, 90, 0.07),
-          transparent 30rem
-        ),
-        var(--bg);
       font-family: Arial, Helvetica, sans-serif;
       line-height: 1.6;
     }
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
     button,
     input,
+    textarea,
     select {
       font: inherit;
     }
 
-    button:focus-visible,
-    a:focus-visible,
-    input:focus-visible,
-    select:focus-visible {
-      outline: 2px solid var(--gold-light);
-      outline-offset: 3px;
+    button {
+      cursor: pointer;
+    }
+
+    a {
+      color: var(--gold-light);
+      text-decoration: none;
     }
 
     .topbar {
-      min-height: 72px;
-      padding: 14px 5%;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(9, 9, 9, 0.96);
+      border-bottom: 1px solid var(--border);
+      padding: 15px 5%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(11, 11, 11, 0.96);
+      gap: 18px;
+      flex-wrap: wrap;
     }
 
     .brand {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 19px;
+      font-size: 23px;
       font-weight: 800;
+      letter-spacing: 1px;
     }
 
-    .brand-mark {
-      width: 38px;
-      height: 38px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      color: #111;
-      background: linear-gradient(
-        135deg,
-        var(--gold-light),
-        var(--gold)
-      );
-      font-weight: 900;
+    .brand span {
+      color: var(--gold);
     }
 
-    .brand-name {
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    nav a {
+      color: #d2d2d2;
+      font-size: 14px;
+    }
+
+    nav a:hover,
+    nav a.active {
       color: var(--gold-light);
     }
 
-    .back-link {
-      color: var(--gold-light);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    main {
-      width: min(1180px, 100%);
+    .container {
+      width: min(1100px, 92%);
       margin: 0 auto;
-      padding: 40px 25px 65px;
+    }
+
+    .hero {
+      padding: 42px 0 25px;
     }
 
     .eyebrow {
-      margin: 0 0 9px;
       color: var(--gold);
-      font-size: 11px;
-      font-weight: 800;
+      font-size: 12px;
+      font-weight: bold;
       letter-spacing: 2px;
       text-transform: uppercase;
     }
 
     h1 {
-      margin: 0;
-      font-size: clamp(30px, 5vw, 45px);
+      margin: 8px 0;
+      font-size: clamp(29px, 5vw, 44px);
       line-height: 1.2;
-      letter-spacing: -1px;
     }
 
-    .intro {
-      max-width: 680px;
-      margin: 14px 0 28px;
+    .hero p {
+      max-width: 650px;
       color: var(--muted);
-      font-size: 14px;
     }
 
-    .search-panel {
-      padding: 22px;
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      background: var(--panel);
-    }
-
-    .search-panel h2 {
-      margin: 0 0 17px;
-      font-size: 16px;
-    }
-
-    .search-form {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 190px auto;
-      align-items: end;
-      gap: 12px;
-    }
-
-    .field {
-      min-width: 0;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      color: #dedede;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .field input,
-    .field select {
-      width: 100%;
-      min-height: 46px;
-      padding: 11px 12px;
-      border: 1px solid #373737;
-      border-radius: 9px;
-      color: var(--text);
-      background: #101010;
-    }
-
-    .field input::placeholder {
-      color: #777;
-    }
-
-    .button {
-      min-height: 45px;
-      padding: 10px 16px;
-      border: 1px solid var(--gold);
-      border-radius: 9px;
-      color: #111;
-      background: var(--gold);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .button:hover {
-      background: var(--gold-light);
-    }
-
-    .button.secondary {
-      color: var(--gold-light);
-      background: transparent;
-    }
-
-    .button.secondary:hover {
-      background: rgba(216, 180, 90, 0.08);
-    }
-
-    .button:disabled {
-      opacity: 0.6;
-      cursor: wait;
-    }
-
-    .toolbar {
-      margin-top: 25px;
+    .tabs {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
+      margin: 20px 0;
     }
 
-    .results-title {
-      margin: 0;
-      font-size: 19px;
-    }
-
-    .results-count {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .message {
-      margin: 17px 0;
-      padding: 14px 16px;
-      border: 1px solid #353535;
-      border-radius: 10px;
-      color: var(--muted);
+    .tab {
+      padding: 10px 15px;
       background: var(--panel);
-      font-size: 12px;
-      overflow-wrap: anywhere;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
     }
 
-    .message.error {
-      color: var(--error);
-      border-color: rgba(255, 153, 153, 0.35);
+    .tab.active {
+      border-color: var(--gold);
+      color: var(--gold-light);
+      background: #211b10;
     }
 
-    .message.success {
-      color: var(--success);
-      border-color: rgba(168, 223, 180, 0.35);
+    .filters {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      background: #101010;
+      color: var(--text);
+      border: 1px solid #3a3a3a;
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: 1px solid var(--gold);
+      border-color: var(--gold);
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .section-heading {
+      margin: 28px 0 15px;
+      font-size: 22px;
     }
 
     .job-list {
       display: grid;
-      gap: 14px;
+      gap: 15px;
+      padding-bottom: 45px;
     }
 
-    .job-card {
-      min-width: 0;
-      padding: 22px;
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 14px;
+    .card {
       background: var(--panel);
-      transition: border-color 0.2s ease;
-    }
-
-    .job-card:hover {
-      border-color: var(--border);
-    }
-
-    .job-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .job-title {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.4;
-      overflow-wrap: anywhere;
-    }
-
-    .job-category {
-      display: inline-block;
-      margin-top: 9px;
-      padding: 5px 9px;
       border: 1px solid var(--border);
-      border-radius: 999px;
-      color: var(--gold-light);
-      font-size: 10px;
-      font-weight: 700;
-    }
-
-    .job-budget {
-      flex-shrink: 0;
-      color: var(--gold-light);
-      font-size: 13px;
-      font-weight: 800;
-      text-align: right;
-    }
-
-    .job-budget small {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 400;
-    }
-
-    .job-description {
-      margin: 16px 0;
-      color: #c6c6c6;
-      font-size: 13px;
-      white-space: pre-wrap;
+      border-radius: 12px;
+      padding: 20px;
       overflow-wrap: anywhere;
     }
 
-    .job-meta {
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 9px 20px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.07);
-      color: var(--muted);
-      font-size: 11px;
+      gap: 8px;
+      margin: 12px 0;
     }
 
-    .job-meta strong {
-      color: #e4e4e4;
-      font-weight: 700;
-    }
-
-    .job-skills {
-      margin-top: 13px;
-      color: var(--muted);
+    .badge {
+      display: inline-block;
+      background: #222;
+      color: #e5e5e5;
+      border: 1px solid #393939;
+      border-radius: 30px;
+      padding: 4px 10px;
       font-size: 12px;
-      overflow-wrap: anywhere;
+    }
+
+    .badge.gold {
+      color: var(--gold-light);
+      border-color: #725c30;
+      background: #211b10;
+    }
+
+    .description {
+      color: #d0d0d0;
       white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
 
-    .empty-state {
-      padding: 35px 20px;
-      border: 1px dashed #393939;
-      border-radius: 13px;
-      background: rgba(255, 255, 255, 0.015);
-      text-align: center;
-    }
-
-    .empty-state h3 {
-      margin: 0 0 8px;
-      font-size: 17px;
-    }
-
-    .empty-state p {
-      max-width: 490px;
-      margin: 0 auto;
+    .muted {
       color: var(--muted);
-      font-size: 12px;
     }
 
-    footer {
-      padding: 20px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      text-align: center;
-      font-size: 11px;
+    .btn {
+      display: inline-block;
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      padding: 10px 16px;
+      background: var(--gold);
+      color: #111;
+      font-weight: bold;
+    }
+
+    .btn:hover {
+      background: var(--gold-light);
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--gold-light);
+    }
+
+    .btn-secondary:hover {
+      background: #211b10;
+    }
+
+    .btn-danger {
+      background: transparent;
+      color: var(--danger);
+      border-color: #754040;
+    }
+
+    .btn-danger:hover {
+      background: #2b1515;
+    }
+
+    .message {
+      margin: 18px 0;
+      padding: 13px 15px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 8px;
+      color: #ddd;
+      overflow-wrap: anywhere;
+    }
+
+    .message.error {
+      border-color: #754040;
+      color: var(--danger);
+    }
+
+    .message.success {
+      border-color: #346849;
+      color: var(--success);
     }
 
     .hidden {
       display: none !important;
     }
 
-    @media (max-width: 760px) {
-      main {
-        padding: 30px 16px 45px;
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(0, 0, 0, 0.82);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 18px;
+      overflow-y: auto;
+    }
+
+    .modal-panel {
+      width: min(600px, 100%);
+      max-height: 92vh;
+      overflow-y: auto;
+      background: #151515;
+      border: 1px solid #554526;
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .modal-panel h2 {
+      margin-top: 0;
+    }
+
+    .field {
+      margin: 15px 0;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 25px 4%;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        padding: 13px 4%;
       }
 
-      .search-form {
-        grid-template-columns: 1fr;
-      }
-
-      .search-form .button {
-        width: 100%;
-      }
-
-      .search-panel {
-        padding: 17px;
-      }
-
-      .job-card {
-        padding: 17px;
-      }
-
-      .job-top {
-        flex-direction: column;
+      nav {
         gap: 12px;
       }
 
-      .job-budget {
-        text-align: left;
+      .filters {
+        grid-template-columns: 1fr;
       }
 
-      .toolbar {
-        align-items: flex-start;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        scroll-behavior: auto !important;
-        transition: none !important;
+      .card {
+        padding: 16px;
       }
     }
   </style>
@@ -430,97 +366,133 @@
 
 <body>
   <header class="topbar">
-    <a class="brand" href="app.html" aria-label="GS Platform dashboard">
-      <span class="brand-mark">GS</span>
-      <span>GS <span class="brand-name">Platform</span></span>
+    <a class="brand" href="app.html">
+      GS <span>PLATFORM</span>
     </a>
 
-    <a class="back-link" href="app.html">← Dashboard</a>
+    <nav aria-label="Main navigation">
+      <a href="app.html">Dashboard</a>
+      <a href="jobs.html" class="active">Jobs</a>
+      <a href="marketplace.html">Marketplace</a>
+      <a href="workspace.html">Workspace</a>
+      <a href="chat.html">Business Chat</a>
+      <a href="profile.html">Profile</a>
+    </nav>
   </header>
 
-  <main>
-    <section aria-labelledby="pageTitle">
-      <p class="eyebrow">Opportunities</p>
-
-      <h1 id="pageTitle">Find work worth doing.</h1>
-
-      <p class="intro">
-        Explore genuine opportunities posted by clients. Review the
-        requirements, budget, and deadline before deciding whether
-        a job fits your skills.
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">Opportunities that matter</div>
+      <h1>Find your next opportunity.</h1>
+      <p>
+        Discover real jobs, submit professional applications,
+        and keep track of your applications in one place.
       </p>
-    </section>
 
-    <section class="search-panel" aria-labelledby="searchHeading">
-      <h2 id="searchHeading">Find your next opportunity</h2>
-
-      <form id="searchForm" class="search-form">
-        <div class="field">
-          <label for="searchTerm">Search jobs</label>
-
-          <input
-            id="searchTerm"
-            name="searchTerm"
-            type="search"
-            maxlength="60"
-            placeholder="Search titles, descriptions, or skills"
-            autocomplete="off"
-          >
-        </div>
-
-        <div class="field">
-          <label for="categoryFilter">Category</label>
-
-          <select id="categoryFilter" name="categoryFilter">
-            <option value="all">All categories</option>
-          </select>
-        </div>
-
-        <button id="searchButton" class="button" type="submit">
-          Search jobs
+      <div class="tabs" role="tablist" aria-label="Job sections">
+        <button class="tab active" data-view="browse" type="button">
+          Browse jobs
         </button>
-      </form>
+
+        <button class="tab" data-view="applications" type="button">
+          My applications
+        </button>
+
+        <button class="tab" data-view="client" type="button">
+          Applications to my jobs
+        </button>
+      </div>
     </section>
 
-    <section aria-labelledby="resultsHeading">
-      <div class="toolbar">
-        <div>
-          <h2 class="results-title" id="resultsHeading">
-            Available opportunities
-          </h2>
+    <div id="pageMessage" class="message" role="status" aria-live="polite">
+      Connecting to GS Platform...
+    </div>
 
-          <div class="results-count" id="resultsCount">
-            Checking available jobs...
-          </div>
-        </div>
+    <section id="browseView">
+      <h2 class="section-heading">Available jobs</h2>
 
-        <button
-          type="button"
-          id="refreshButton"
-          class="button secondary"
+      <div class="filters">
+        <input
+          id="searchInput"
+          type="search"
+          placeholder="Search jobs, skills, or descriptions..."
+          aria-label="Search jobs"
         >
-          Refresh listings
-        </button>
+
+        <select id="categoryFilter" aria-label="Filter by category">
+          <option value="">All categories</option>
+        </select>
       </div>
 
-      <div
-        id="statusMessage"
-        class="message"
-        role="status"
-        aria-live="polite"
-      >
-        Connecting to GS Platform...
-      </div>
+      <div id="jobsList" class="job-list"></div>
+    </section>
 
-      <div id="jobList" class="job-list"></div>
+    <section id="applicationsView" class="hidden">
+      <h2 class="section-heading">My applications</h2>
+      <p class="muted">
+        View your submitted applications and withdraw pending applications.
+      </p>
+      <div id="myApplicationsList" class="job-list"></div>
+    </section>
+
+    <section id="clientView" class="hidden">
+      <h2 class="section-heading">Applications to my jobs</h2>
+      <p class="muted">
+        Review applications submitted to jobs you posted.
+      </p>
+      <div id="clientApplicationsList" class="job-list"></div>
     </section>
   </main>
 
-  <footer>
-    GS Platform · Professional work, built on trust.
-  </footer>
+  <div id="applicationModal" class="modal hidden">
+    <div
+      class="modal-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <h2 id="modalTitle">Apply for this job</h2>
+      <p id="modalJobTitle" class="muted"></p>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <form id="applicationForm">
+        <input type="hidden" id="applicationJobId">
+
+        <div class="field">
+          <label for="coverLetter">Cover letter</label>
+          <textarea
+            id="coverLetter"
+            minlength="20"
+            maxlength="5000"
+            required
+            placeholder="Explain why you're suitable for this job..."
+          ></textarea>
+          <small class="muted">
+            Minimum 20 characters; maximum 5,000.
+          </small>
+        </div>
+
+        <div id="formMessage" class="message hidden" role="status"></div>
+
+        <div class="form-actions">
+          <button class="btn" id="submitApplication" type="submit">
+            Submit application
+          </button>
+
+          <button
+            class="btn btn-secondary"
+            id="closeModal"
+            type="button"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    GS Platform — Professional work. Real opportunities.
+  </footer>
 
   <script>
     (() => {
@@ -532,42 +504,42 @@
       const SUPABASE_PUBLISHABLE_KEY =
         "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
 
-      const form = document.getElementById("searchForm");
-      const searchTerm = document.getElementById("searchTerm");
-      const categoryFilter = document.getElementById("categoryFilter");
-      const searchButton = document.getElementById("searchButton");
-      const refreshButton = document.getElementById("refreshButton");
-      const statusMessage = document.getElementById("statusMessage");
-      const jobList = document.getElementById("jobList");
-      const resultsCount = document.getElementById("resultsCount");
+      const { createClient } = window.supabase;
 
-      let client = null;
-      let currentUserId = null;
+      const db = createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+      const $ = (id) => document.getElementById(id);
+
+      let currentUser = null;
+      let currentProfile = null;
       let allJobs = [];
-      let requestId = 0;
-      let isLoading = false;
 
-      function setStatus(message, type = "") {
-        statusMessage.textContent = message;
-        statusMessage.className = "message";
+      function setMessage(message, type = "") {
+        const box = $("pageMessage");
+        box.textContent = message;
+        box.className = "message";
 
         if (type) {
-          statusMessage.classList.add(type);
+          box.classList.add(type);
         }
       }
 
-      function setLoading(value) {
-        isLoading = value;
-        searchButton.disabled = value;
-        refreshButton.disabled = value;
+      function showFormMessage(message, type = "") {
+        const box = $("formMessage");
+        box.textContent = message;
+        box.className = "message";
 
-        searchButton.textContent = value
-          ? "Loading..."
-          : "Search jobs";
+        if (type) {
+          box.classList.add(type);
+        }
+      }
 
-        refreshButton.textContent = value
-          ? "Refreshing..."
-          : "Refresh listings";
+      function clearFormMessage() {
+        $("formMessage").textContent = "";
+        $("formMessage").className = "message hidden";
       }
 
       function makeElement(tag, className, text) {
@@ -584,439 +556,694 @@
         return element;
       }
 
-      function cleanText(value, fallback = "") {
-        if (typeof value !== "string") {
-          return fallback;
-        }
-
-        return value.trim() || fallback;
+      function makeButton(label, className, onClick) {
+        const button = makeElement("button", className, label);
+        button.type = "button";
+        button.addEventListener("click", onClick);
+        return button;
       }
 
-      function formatMoney(value, currency) {
-        if (value === null || value === undefined || value === "") {
-          return null;
+      function money(job) {
+        const currency = job.currency || "USD";
+        const min = job.budget_min;
+        const max = job.budget_max;
+
+        if (min == null && max == null) {
+          return "Budget not specified";
         }
 
-        const amount = Number(value);
-
-        if (!Number.isFinite(amount)) {
-          return null;
+        if (min != null && max != null) {
+          return `${currency} ${min} – ${max}`;
         }
 
-        try {
-          return new Intl.NumberFormat("en", {
-            style: "currency",
-            currency,
-            maximumFractionDigits: 2
-          }).format(amount);
-        } catch {
-          return currency + " " + amount.toLocaleString("en");
+        if (min != null) {
+          return `From ${currency} ${min}`;
         }
+
+        return `Up to ${currency} ${max}`;
       }
 
-      function formatBudget(job) {
-        const currency = cleanText(job.currency, "USD");
-        const minimum = formatMoney(job.budget_min, currency);
-        const maximum = formatMoney(job.budget_max, currency);
+      function formatDate(value) {
+        if (!value) return "Not specified";
 
-        if (minimum && maximum) {
-          if (Number(job.budget_min) === Number(job.budget_max)) {
-            return minimum;
-          }
-
-          return minimum + " – " + maximum;
-        }
-
-        if (minimum) {
-          return "From " + minimum;
-        }
-
-        if (maximum) {
-          return "Up to " + maximum;
-        }
-
-        return "Not specified";
-      }
-
-      function formatDeadline(value) {
-        if (!value) {
-          return "Not specified";
-        }
-
-        const date = new Date(value + "T00:00:00");
+        const date = new Date(value);
 
         if (Number.isNaN(date.getTime())) {
           return "Not specified";
         }
 
-        return new Intl.DateTimeFormat("en", {
-          year: "numeric",
-          month: "short",
-          day: "numeric"
-        }).format(date);
+        return date.toLocaleDateString();
       }
 
-      function populateCategories(jobs) {
-        const previous = categoryFilter.value;
-        const categories = new Set();
+      function openApplicationModal(job) {
+        $("applicationJobId").value = job.id;
+        $("modalJobTitle").textContent = job.title;
+        $("coverLetter").value = "";
+        clearFormMessage();
 
-        for (const job of jobs) {
-          const category = cleanText(job.category);
-
-          if (category) {
-            categories.add(category);
-          }
-        }
-
-        categoryFilter.replaceChildren();
-
-        categoryFilter.appendChild(
-          makeElement("option", "", "All categories")
-        );
-
-        categoryFilter.options[0].value = "all";
-
-        for (const category of [...categories].sort()) {
-          const option = makeElement("option", "", category);
-          option.value = category;
-          categoryFilter.appendChild(option);
-        }
-
-        if (
-          previous === "all" ||
-          [...categories].includes(previous)
-        ) {
-          categoryFilter.value = previous;
-        } else {
-          categoryFilter.value = "all";
-        }
+        $("applicationModal").classList.remove("hidden");
+        $("coverLetter").focus();
       }
 
-      function createJobCard(job) {
-        const card = makeElement("article", "job-card");
-
-        const top = makeElement("div", "job-top");
-        const titleArea = makeElement("div", "");
-
-        titleArea.appendChild(
-          makeElement(
-            "h3",
-            "job-title",
-            cleanText(job.title, "Untitled job")
-          )
-        );
-
-        const category = cleanText(job.category);
-
-        if (category) {
-          titleArea.appendChild(
-            makeElement("span", "job-category", category)
-          );
-        }
-
-        const budget = makeElement("div", "job-budget");
-
-        budget.appendChild(
-          document.createTextNode(formatBudget(job))
-        );
-
-        budget.appendChild(
-          makeElement(
-            "small",
-            "",
-            job.budget_type === "hourly"
-              ? "Hourly budget"
-              : "Project budget"
-          )
-        );
-
-        top.append(titleArea, budget);
-        card.appendChild(top);
-
-        card.appendChild(
-          makeElement(
-            "p",
-            "job-description",
-            cleanText(job.description, "No description provided.")
-          )
-        );
-
-        const meta = makeElement("div", "job-meta");
-
-        const jobType = job.budget_type === "hourly"
-          ? "Hourly"
-          : "Fixed price";
-
-        const createdAt = job.created_at
-          ? new Date(job.created_at)
-          : null;
-
-        const posted = createdAt && !Number.isNaN(createdAt.getTime())
-          ? new Intl.DateTimeFormat("en", {
-              year: "numeric",
-              month: "short",
-              day: "numeric"
-            }).format(createdAt)
-          : "Date unavailable";
-
-        const deadline = formatDeadline(job.deadline);
-
-        const details = [
-          ["Type", jobType],
-          ["Deadline", deadline],
-          ["Posted", posted]
-        ];
-
-        for (const [label, value] of details) {
-          const item = makeElement("span", "");
-          item.appendChild(
-            makeElement("strong", "", label + ": ")
-          );
-          item.appendChild(
-            document.createTextNode(value)
-          );
-          meta.appendChild(item);
-        }
-
-        card.appendChild(meta);
-
-        const skills = cleanText(job.skills);
-
-        if (skills) {
-          card.appendChild(
-            makeElement("p", "job-skills", "Skills: " + skills)
-          );
-        }
-
-        return card;
+      function closeApplicationModal() {
+        $("applicationModal").classList.add("hidden");
+        $("applicationForm").reset();
+        clearFormMessage();
       }
 
-      function renderJobs(jobs) {
-        jobList.replaceChildren();
+      async function loadProfile() {
+        const { data, error } = await db
+          .from("profiles")
+          .select("id, username, display_name, role")
+          .eq("id", currentUser.id)
+          .maybeSingle();
 
-        if (!jobs.length) {
-          resultsCount.textContent = "0 matching jobs";
-
-          const empty = makeElement("div", "empty-state");
-
-          empty.appendChild(
-            makeElement("h3", "", "No matching jobs")
+        if (error) {
+          throw new Error(
+            "We couldn't load your profile. Check your profiles table permissions."
           );
-
-          empty.appendChild(
-            makeElement(
-              "p",
-              "",
-              allJobs.length === 0
-                ? "There are currently no open jobs available in the " +
-                  "records we could access. Check again later as genuine " +
-                  "opportunities are published."
-                : "Try another keyword or choose a different category."
-            )
-          );
-
-          jobList.appendChild(empty);
-          return;
         }
 
-        resultsCount.textContent =
-          jobs.length + (jobs.length === 1 ? " job" : " jobs");
-
-        const fragment = document.createDocumentFragment();
-
-        for (const job of jobs) {
-          fragment.appendChild(createJobCard(job));
+        if (!data) {
+          throw new Error(
+            "Your profile was not found. Complete account setup before applying."
+          );
         }
 
-        jobList.appendChild(fragment);
-      }
-
-      function applyFilters() {
-        const term = searchTerm.value
-          .normalize("NFKC")
-          .trim()
-          .toLocaleLowerCase();
-
-        const selectedCategory = categoryFilter.value;
-
-        const filtered = allJobs.filter(job => {
-          const searchable = [
-            job.title,
-            job.description,
-            job.skills,
-            job.category
-          ]
-            .map(value => cleanText(value))
-            .join(" ")
-            .toLocaleLowerCase();
-
-          const matchesTerm =
-            !term || searchable.includes(term);
-
-          const matchesCategory =
-            selectedCategory === "all" ||
-            cleanText(job.category) === selectedCategory;
-
-          return matchesTerm && matchesCategory;
-        });
-
-        renderJobs(filtered);
+        currentProfile = data;
       }
 
       async function loadJobs() {
-        if (isLoading) {
+        $("jobsList").replaceChildren(
+          makeElement("p", "muted", "Loading real job listings...")
+        );
+
+        const { data, error } = await db
+          .from("jobs")
+          .select(
+            "id, client_id, title, description, category, skills, budget_type, budget_min, budget_max, currency, deadline, status, created_at"
+          )
+          .eq("status", "open")
+          .order("created_at", { ascending: false })
+          .limit(100);
+
+        if (error) {
+          $("jobsList").replaceChildren(
+            makeElement(
+              "p",
+              "message error",
+              "We couldn't load jobs. Please check the jobs table permissions and try again."
+            )
+          );
+
+          console.error("Job loading error:", error);
           return;
         }
 
-        const thisRequest = ++requestId;
+        allJobs = data || [];
 
-        setLoading(true);
-        jobList.replaceChildren();
+        const categories = [
+          ...new Set(
+            allJobs
+              .map((job) => job.category)
+              .filter(Boolean)
+          )
+        ].sort();
 
-        resultsCount.textContent = "Loading listings...";
+        const categoryFilter = $("categoryFilter");
+        categoryFilter.replaceChildren(
+          new Option("All categories", "")
+        );
 
-        setStatus("Loading real job listings from Supabase...");
+        categories.forEach((category) => {
+          categoryFilter.add(
+            new Option(category, category)
+          );
+        });
 
-        try {
-          const response = await client
-            .from("jobs")
-            .select(
-              "id, client_id, title, description, category, skills, " +
-              "budget_type, budget_min, budget_max, currency, " +
-              "deadline, status, created_at"
+        renderJobs();
+      }
+
+      function renderJobs() {
+        const container = $("jobsList");
+        container.replaceChildren();
+
+        const query = $("searchInput").value
+          .trim()
+          .toLowerCase();
+
+        const category = $("categoryFilter").value;
+
+        const filtered = allJobs.filter((job) => {
+          const text = [
+            job.title,
+            job.description,
+            job.category,
+            job.skills
+          ].join(" ").toLowerCase();
+
+          const matchesText = !query || text.includes(query);
+          const matchesCategory =
+            !category || job.category === category;
+
+          return matchesText && matchesCategory;
+        });
+
+        if (!filtered.length) {
+          container.appendChild(
+            makeElement(
+              "div",
+              "card",
+              allJobs.length
+                ? "No jobs match your search."
+                : "There are currently no open jobs. Check back later."
             )
-            .eq("status", "open")
-            .order("created_at", { ascending: false })
-            .limit(100);
+          );
+          return;
+        }
 
-          if (thisRequest !== requestId) {
-            return;
-          }
-
-          if (response.error) {
-            console.error("Job listing query failed:", response.error);
-
-            allJobs = [];
-            renderJobs([]);
-
-            resultsCount.textContent = "Listings unavailable.";
-
-            setStatus(
-              "We could not load job listings. Check that the jobs table " +
-              "exists, its columns match this page, and its Row Level " +
-              "Security policies permit signed-in users to read open jobs. " +
-              "No sample jobs have been substituted.",
-              "error"
-            );
-
-            return;
-          }
-
-          allJobs = Array.isArray(response.data)
-            ? response.data
-            : [];
-
-          populateCategories(allJobs);
-          applyFilters();
-
-          setStatus(
-            allJobs.length
-              ? "Listings loaded from the GS Platform database."
-              : "The database returned no open job listings.",
-            allJobs.length ? "success" : ""
+        filtered.forEach((job) => {
+          const card = makeElement("article", "card");
+          const heading = makeElement("h3", "", job.title);
+          const description = makeElement(
+            "p",
+            "description",
+            job.description
           );
 
-        } catch (error) {
-          console.error("Unexpected job loading error:", error);
+          const meta = makeElement("div", "meta");
 
-          if (thisRequest === requestId) {
-            allJobs = [];
-            renderJobs([]);
+          meta.appendChild(
+            makeElement("span", "badge gold", job.category || "Other")
+          );
 
-            resultsCount.textContent = "Listings unavailable.";
+          meta.appendChild(
+            makeElement(
+              "span",
+              "badge",
+              job.budget_type === "hourly" ? "Hourly" : "Fixed price"
+            )
+          );
 
-            setStatus(
-              "An unexpected error prevented job listings from loading. " +
-              "Check your internet connection and try again.",
-              "error"
+          meta.appendChild(
+            makeElement("span", "badge", money(job))
+          );
+
+          meta.appendChild(
+            makeElement(
+              "span",
+              "badge",
+              `Deadline: ${formatDate(job.deadline)}`
+            )
+          );
+
+          const skills = makeElement(
+            "p",
+            "muted",
+            job.skills
+              ? `Skills: ${job.skills}`
+              : "Skills not specified"
+          );
+
+          card.append(heading, meta, description, skills);
+
+          if (job.client_id === currentUser.id) {
+            card.appendChild(
+              makeElement(
+                "p",
+                "muted",
+                "This is your job posting."
+              )
+            );
+          } else if (currentProfile.role === "freelancer") {
+            card.appendChild(
+              makeButton(
+                "Apply for this job",
+                "btn",
+                () => openApplicationModal(job)
+              )
+            );
+          } else {
+            card.appendChild(
+              makeElement(
+                "p",
+                "muted",
+                "A freelancer account is required to apply."
+              )
             );
           }
-        } finally {
-          if (thisRequest === requestId) {
-            setLoading(false);
+
+          container.appendChild(card);
+        });
+      }
+
+      async function submitApplication(event) {
+        event.preventDefault();
+
+        if (!currentUser || !currentProfile) {
+          showFormMessage(
+            "Please sign in before applying.",
+            "error"
+          );
+          return;
+        }
+
+        if (currentProfile.role !== "freelancer") {
+          showFormMessage(
+            "Your current profile is not set up as a freelancer.",
+            "error"
+          );
+          return;
+        }
+
+        const jobId = $("applicationJobId").value;
+        const coverLetter = $("coverLetter").value.trim();
+        const button = $("submitApplication");
+
+        if (coverLetter.length < 20 || coverLetter.length > 5000) {
+          showFormMessage(
+            "Your cover letter must be between 20 and 5,000 characters.",
+            "error"
+          );
+          return;
+        }
+
+        const job = allJobs.find((item) => item.id === jobId);
+
+        if (!job || job.status !== "open") {
+          showFormMessage(
+            "This job is no longer available. Refresh the page.",
+            "error"
+          );
+          return;
+        }
+
+        if (job.client_id === currentUser.id) {
+          showFormMessage(
+            "You cannot apply to your own job.",
+            "error"
+          );
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "Submitting...";
+
+        try {
+          const { error } = await db
+            .from("job_applications")
+            .insert({
+              job_id: jobId,
+              freelancer_id: currentUser.id,
+              cover_letter: coverLetter,
+              status: "pending"
+            });
+
+          if (error) {
+            if (error.code === "23505") {
+              throw new Error(
+                "You've already applied to this job."
+              );
+            }
+
+            if (error.code === "42501") {
+              throw new Error(
+                "Your account doesn't have permission to apply. Check your profile role and database policies."
+              );
+            }
+
+            throw error;
           }
+
+          showFormMessage(
+            "Your application was submitted successfully.",
+            "success"
+          );
+
+          await loadMyApplications();
+
+          window.setTimeout(() => {
+            closeApplicationModal();
+            activateView("applications");
+          }, 900);
+
+        } catch (error) {
+          console.error("Application submission error:", error);
+
+          showFormMessage(
+            error.message ||
+              "We couldn't submit your application. Please try again.",
+            "error"
+          );
+        } finally {
+          button.disabled = false;
+          button.textContent = "Submit application";
+        }
+      }
+
+      async function loadMyApplications() {
+        const container = $("myApplicationsList");
+
+        container.replaceChildren(
+          makeElement("p", "muted", "Loading your applications...")
+        );
+
+        const { data, error } = await db
+          .from("job_applications")
+          .select(
+            "id, job_id, freelancer_id, cover_letter, status, created_at, updated_at"
+          )
+          .eq("freelancer_id", currentUser.id)
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          container.replaceChildren(
+            makeElement(
+              "p",
+              "message error",
+              "We couldn't load your applications. Check the application-table permissions."
+            )
+          );
+
+          console.error("Application loading error:", error);
+          return;
+        }
+
+        container.replaceChildren();
+
+        if (!data || !data.length) {
+          container.appendChild(
+            makeElement(
+              "div",
+              "card",
+              "You haven't submitted any applications yet."
+            )
+          );
+          return;
+        }
+
+        for (const application of data) {
+          const card = makeElement("article", "card");
+
+          const job = allJobs.find(
+            (item) => item.id === application.job_id
+          );
+
+          card.appendChild(
+            makeElement(
+              "h3",
+              "",
+              job ? job.title : "Job application"
+            )
+          );
+
+          card.appendChild(
+            makeElement(
+              "p",
+              "muted",
+              `Submitted: ${formatDate(application.created_at)}`
+            )
+          );
+
+          card.appendChild(
+            makeElement(
+              "span",
+              "badge gold",
+              `Status: ${application.status}`
+            )
+          );
+
+          card.appendChild(
+            makeElement(
+              "p",
+              "description",
+              application.cover_letter
+            )
+          );
+
+          if (application.status === "pending") {
+            card.appendChild(
+              makeButton(
+                "Withdraw application",
+                "btn btn-danger",
+                () => withdrawApplication(application.id)
+              )
+            );
+          }
+
+          container.appendChild(card);
+        }
+      }
+
+      async function withdrawApplication(applicationId) {
+        const confirmed = window.confirm(
+          "Are you sure you want to withdraw this application?"
+        );
+
+        if (!confirmed) return;
+
+        const { error } = await db.rpc(
+          "withdraw_job_application",
+          {
+            p_application_id: applicationId
+          }
+        );
+
+        if (error) {
+          console.error("Withdrawal error:", error);
+
+          setMessage(
+            "We couldn't withdraw that application. It may no longer be pending, or the database function may need checking.",
+            "error"
+          );
+
+          return;
+        }
+
+        setMessage(
+          "Your application has been withdrawn.",
+          "success"
+        );
+
+        await loadMyApplications();
+      }
+
+      async function loadClientApplications() {
+        const container = $("clientApplicationsList");
+
+        container.replaceChildren(
+          makeElement("p", "muted", "Loading applications...")
+        );
+
+        const { data, error } = await db
+          .from("job_applications")
+          .select(
+            "id, job_id, freelancer_id, cover_letter, status, created_at"
+          )
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          container.replaceChildren(
+            makeElement(
+              "p",
+              "message error",
+              "We couldn't load applications. Check the client application-view policy."
+            )
+          );
+
+          console.error("Client applications error:", error);
+          return;
+        }
+
+        const applications = data || [];
+
+        const myJobs = allJobs.filter(
+          (job) => job.client_id === currentUser.id
+        );
+
+        /*
+          The database's row-level security policies determine
+          which applications are actually returned to this user.
+        */
+        const myJobIds = new Set(
+          myJobs.map((job) => job.id)
+        );
+
+        const visibleApplications = applications.filter(
+          (application) => myJobIds.has(application.job_id)
+        );
+
+        container.replaceChildren();
+
+        if (!visibleApplications.length) {
+          container.appendChild(
+            makeElement(
+              "div",
+              "card",
+              "No applications are currently visible for your jobs. If you have received applications, check that your jobs and application-view permissions are configured correctly."
+            )
+          );
+          return;
+        }
+
+        visibleApplications.forEach((application) => {
+          const card = makeElement("article", "card");
+
+          const job = myJobs.find(
+            (item) => item.id === application.job_id
+          );
+
+          card.appendChild(
+            makeElement(
+              "h3",
+              "",
+              job ? job.title : "Your job"
+            )
+          );
+
+          card.appendChild(
+            makeElement(
+              "p",
+              "muted",
+              `Applicant ID: ${application.freelancer_id}`
+            )
+          );
+
+          card.appendChild(
+            makeElement(
+              "p",
+              "muted",
+              `Submitted: ${formatDate(application.created_at)}`
+            )
+          );
+
+          card.appendChild(
+            makeElement(
+              "span",
+              "badge gold",
+              `Status: ${application.status}`
+            )
+          );
+
+          card.appendChild(
+            makeElement(
+              "p",
+              "description",
+              application.cover_letter
+            )
+          );
+
+          container.appendChild(card);
+        });
+      }
+
+      function activateView(view) {
+        $("browseView").classList.toggle(
+          "hidden",
+          view !== "browse"
+        );
+
+        $("applicationsView").classList.toggle(
+          "hidden",
+          view !== "applications"
+        );
+
+        $("clientView").classList.toggle(
+          "hidden",
+          view !== "client"
+        );
+
+        document.querySelectorAll(".tab").forEach((tab) => {
+          tab.classList.toggle(
+            "active",
+            tab.dataset.view === view
+          );
+        });
+
+        if (view === "applications") {
+          loadMyApplications();
+        }
+
+        if (view === "client") {
+          loadClientApplications();
         }
       }
 
       async function initialize() {
-        if (!window.supabase || !window.supabase.createClient) {
-          setStatus(
-            "The Supabase library could not load. Check your connection " +
-            "and reload this page.",
-            "error"
-          );
-
-          resultsCount.textContent = "Connection unavailable.";
-          return;
-        }
-
         try {
-          client = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY
-          );
-
-          const sessionResult = await client.auth.getSession();
-
-          if (sessionResult.error) {
-            throw sessionResult.error;
+          if (!window.supabase) {
+            throw new Error(
+              "The Supabase library didn't load. Check your internet connection."
+            );
           }
 
-          const session = sessionResult.data.session;
+          const { data, error } = await db.auth.getSession();
 
-          if (!session || !session.user) {
-            window.location.replace(
-              "index.html?next=" + encodeURIComponent("jobs.html")
-            );
+          if (error) throw error;
 
+          currentUser = data.session?.user || null;
+
+          if (!currentUser) {
+            const next = encodeURIComponent("jobs.html");
+            window.location.href = `index.html?next=${next}`;
             return;
           }
 
-          currentUserId = session.user.id;
-
-          form.addEventListener("submit", event => {
-            event.preventDefault();
-            applyFilters();
-          });
-
-          categoryFilter.addEventListener("change", applyFilters);
-
-          refreshButton.addEventListener("click", loadJobs);
-
-          client.auth.onAuthStateChange(event => {
-            if (event === "SIGNED_OUT") {
-              currentUserId = null;
-
-              window.location.replace(
-                "index.html?next=" + encodeURIComponent("jobs.html")
-              );
-            }
-          });
-
+          await loadProfile();
           await loadJobs();
 
-        } catch (error) {
-          console.error("Jobs page initialization failed:", error);
+          if (currentProfile.role !== "freelancer") {
+            document.querySelector(
+              '[data-view="applications"]'
+            ).classList.add("hidden");
+          }
 
-          setStatus(
-            "We could not verify your session or connect to the database. " +
-            "Please reload the page or sign in again.",
-            "error"
+          if (currentProfile.role !== "client") {
+            document.querySelector(
+              '[data-view="client"]'
+            ).classList.add("hidden");
+          }
+
+          setMessage(
+            `Signed in successfully. Welcome${currentProfile.display_name ? ", " + currentProfile.display_name : ""}.`,
+            "success"
           );
 
-          resultsCount.textContent = "Unable to load jobs.";
+        } catch (error) {
+          console.error("GS Platform initialization error:", error);
+
+          setMessage(
+            error.message ||
+              "GS Platform couldn't initialize. Please try again.",
+            "error"
+          );
         }
       }
+
+      $("searchInput").addEventListener("input", renderJobs);
+      $("categoryFilter").addEventListener("change", renderJobs);
+
+      $("applicationForm").addEventListener(
+        "submit",
+        submitApplication
+      );
+
+      $("closeModal").addEventListener(
+        "click",
+        closeApplicationModal
+      );
+
+      $("applicationModal").addEventListener("click", (event) => {
+        if (event.target === $("applicationModal")) {
+          closeApplicationModal();
+        }
+      });
+
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          activateView(tab.dataset.view);
+        });
+      });
 
       initialize();
     })();
