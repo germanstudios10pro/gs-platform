@@ -365,13 +365,37 @@
               role
             }));
 
-          const { error } =
+          // Read the roles already saved for this user.
+const { data: existingRoles, error: readError } =
   await client
     .from("account_roles")
-    .upsert(records, {
-      onConflict: "user_id,role",
-      ignoreDuplicates: true
-    });
+    .select("role")
+    .eq("user_id", currentUser.id);
+
+if (readError) {
+  throw readError;
+}
+
+// Identify roles that have not been saved yet.
+const savedRoles = new Set(
+  (existingRoles || []).map(item => item.role)
+);
+
+const newRecords = records.filter(
+  item => !savedRoles.has(item.role)
+);
+
+// Insert only missing roles.
+if (newRecords.length > 0) {
+  const { error: insertError } =
+    await client
+      .from("account_roles")
+      .insert(newRecords);
+
+  if (insertError) {
+    throw insertError;
+  }
+}
 
           if (error) {
             throw error;
