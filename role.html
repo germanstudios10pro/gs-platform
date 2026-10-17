@@ -1,1 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <title>Account Setup | GS Platform</title>
+
+  <style>
+    :root {
+      --bg: #0b0b0b;
+      --panel: #151515;
+      --gold: #d8b36a;
+      --text: #f5f3ed;
+      --muted: #aaa79f;
+      --border: rgba(216,179,106,.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at top right,
+          rgba(216,179,106,.12),
+          transparent 45%
+        ),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      padding: 24px 6%;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      color: var(--gold);
+      font-weight: 900;
+      letter-spacing: 3px;
+      text-decoration: none;
+    }
+
+    main {
+      width: min(650px, 92%);
+      margin: 75px auto;
+      text-align: center;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 20px 0;
+      font-size: clamp(32px, 6vw, 48px);
+    }
+
+    .description {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin: 35px 0;
+    }
+
+    .role-card {
+      padding: 30px 20px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .role-card:hover,
+    .role-card.selected {
+      border-color: var(--gold);
+      background: #211d16;
+    }
+
+    .role-card.selected {
+      box-shadow: 0 0 0 2px rgba(216,179,106,.2);
+    }
+
+    .role-icon {
+      color: var(--gold);
+      font-size: 28px;
+    }
+
+    .role-card h2 {
+      margin: 18px 0 10px;
+      font-size: 20px;
+    }
+
+    .role-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .continue-button {
+      width: 100%;
+      min-height: 50px;
+      margin-top: 25px;
+      border: none;
+      border-radius: 5px;
+      background: var(--gold);
+      color: #111;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .continue-button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+
+    .message {
+      margin-top: 20px;
+      color: #ffaaaa;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .message.success {
+      color: #9ee5b0;
+    }
+
+    @media (max-width: 550px) {
+      main {
+        margin: 45px auto;
+      }
+
+      .role-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <a class="logo" href="index.html">
+      GS PLATFORM
+    </a>
+  </header>
+
+  <main>
+    <div class="eyebrow">Account setup</div>
+
+    <h1>How will you use GS Platform?</h1>
+
+    <p class="description">
+      Choose how you want to get started.
+      You can activate both options under one account.
+    </p>
+
+    <div class="role-grid">
+
+      <button
+        class="role-card"
+        id="freelancerCard"
+        type="button"
+        aria-pressed="false"
+      >
+        <div class="role-icon">✦</div>
+        <h2>Freelancer</h2>
+        <p>
+          Discover opportunities, apply for jobs,
+          and build your professional presence.
+        </p>
+      </button>
+
+      <button
+        class="role-card"
+        id="clientCard"
+        type="button"
+        aria-pressed="false"
+      >
+        <div class="role-icon">◇</div>
+        <h2>Client</h2>
+        <p>
+          Find professionals, post projects,
+          and manage collaboration.
+        </p>
+      </button>
+
+    </div>
+
+    <p class="note">
+      Select Freelancer, Client, or both.
+      Your selections will be saved to your account.
+    </p>
+
+    <button
+      class="continue-button"
+      id="continueButton"
+      type="button"
+      disabled
+    >
+      Continue
+    </button>
+
+    <p
+      class="message"
+      id="message"
+      role="status"
+      aria-live="polite"
+    ></p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    "use strict";
+
+    const SUPABASE_URL =
+      "https://xykhrjrsfrcxdmvtwsww.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_WLZRphYc4uvp7wEsH_j4tw_u4zw5wSU";
+
+    const client = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const selectedRoles = new Set();
+
+    const freelancerCard =
+      document.getElementById("freelancerCard");
+
+    const clientCard =
+      document.getElementById("clientCard");
+
+    const continueButton =
+      document.getElementById("continueButton");
+
+    const message =
+      document.getElementById("message");
+
+    let currentUser = null;
+
+    function showMessage(text, success = false) {
+      message.textContent = text;
+      message.classList.toggle("success", success);
+    }
+
+    function updateSelection() {
+      for (const [role, card] of [
+        ["freelancer", freelancerCard],
+        ["client", clientCard]
+      ]) {
+        const selected = selectedRoles.has(role);
+
+        card.classList.toggle("selected", selected);
+        card.setAttribute(
+          "aria-pressed",
+          String(selected)
+        );
+      }
+
+      continueButton.disabled =
+        selectedRoles.size === 0;
+    }
+
+    freelancerCard.addEventListener("click", () => {
+      if (selectedRoles.has("freelancer")) {
+        selectedRoles.delete("freelancer");
+      } else {
+        selectedRoles.add("freelancer");
+      }
+
+      updateSelection();
+    });
+
+    clientCard.addEventListener("click", () => {
+      if (selectedRoles.has("client")) {
+        selectedRoles.delete("client");
+      } else {
+        selectedRoles.add("client");
+      }
+
+      updateSelection();
+    });
+
+    async function initializePage() {
+      try {
+        const { data, error } =
+          await client.auth.getUser();
+
+        if (error || !data.user) {
+          window.location.replace("index.html");
+          return;
+        }
+
+        currentUser = data.user;
+
+        const { data: roles, error: rolesError } =
+          await client
+            .from("account_roles")
+            .select("role")
+            .eq("user_id", currentUser.id);
+
+        if (rolesError) {
+          throw rolesError;
+        }
+
+        for (const item of roles || []) {
+          selectedRoles.add(item.role);
+        }
+
+        updateSelection();
+
+      } catch (error) {
+        console.error(error);
+        showMessage(
+          "Could not load your account. Please refresh and try again."
+        );
+      }
+    }
+
+    continueButton.addEventListener(
+      "click",
+      async () => {
+        if (!currentUser || selectedRoles.size === 0) {
+          return;
+        }
+
+        continueButton.disabled = true;
+        continueButton.textContent = "Saving...";
+
+        showMessage("");
+
+        try {
+          const records =
+            Array.from(selectedRoles).map((role) => ({
+              user_id: currentUser.id,
+              role
+            }));
+
+          const { error } =
+            await client
+              .from("account_roles")
+              .upsert(records, {
+                onConflict: "user_id,role"
+              });
+
+          if (error) {
+            throw error;
+          }
+
+          showMessage(
+            "Your account preferences were saved successfully.",
+            true
+          );
+
+          /*
+           * Dashboard routing will be connected
+           * when the dashboard is ready.
+           */
+
+          continueButton.textContent = "Saved";
+
+        } catch (error) {
+          console.error(error);
+
+          showMessage(
+            error.message ||
+            "Could not save your selection."
+          );
+
+          continueButton.disabled = false;
+          continueButton.textContent = "Continue";
+        }
+      }
+    );
+
+    initializePage();
+  </script>
+
+</body>
+</html>
