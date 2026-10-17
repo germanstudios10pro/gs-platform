@@ -366,11 +366,9 @@
             }));
 
           const { error } =
-            await client
-              .from("account_roles")
-              .upsert(records, {
-                onConflict: "user_id,role"
-              });
+  await client
+    .from("account_roles")
+    .insert(records);
 
           if (error) {
             throw error;
