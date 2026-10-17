@@ -368,7 +368,10 @@
           const { error } =
   await client
     .from("account_roles")
-    .insert(records);
+    .upsert(records, {
+      onConflict: "user_id,role",
+      ignoreDuplicates: true
+    });
 
           if (error) {
             throw error;
